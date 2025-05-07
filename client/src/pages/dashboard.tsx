@@ -610,6 +610,83 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Conversion Funnel */}
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <h3 className="text-base font-medium mb-4">Funil de Conversão</h3>
+          {isLoading ? (
+            <Skeleton className="h-64 w-full" />
+          ) : (
+            <div className="relative pt-5">
+              <div className="flex flex-col items-center">
+                {/* Visualizações */}
+                <div 
+                  className="w-full max-w-lg h-16 rounded-t-lg flex items-center justify-center text-white relative mb-2"
+                  style={{ backgroundColor: COLORS[0] }}
+                >
+                  <div className="text-center">
+                    <div className="font-medium">Visualizações</div>
+                    <div className="text-sm">{adsData.reduce((sum: number, campaign: any) => sum + campaign["Visualizações da página de destino"], 0)}</div>
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] border-r-[20px] border-r-transparent z-10" style={{ borderTopColor: COLORS[0] }}></div>
+                </div>
+                
+                {/* Cliques */}
+                <div 
+                  className="w-11/12 max-w-md h-16 rounded-t-lg flex items-center justify-center text-white relative mb-2"
+                  style={{ backgroundColor: COLORS[1] }}
+                >
+                  <div className="text-center">
+                    <div className="font-medium">Cliques</div>
+                    <div className="text-sm">{adsData.reduce((sum: number, campaign: any) => sum + campaign["Cliques no link"], 0)}</div>
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] border-r-[20px] border-r-transparent z-10" style={{ borderTopColor: COLORS[1] }}></div>
+                </div>
+                
+                {/* Adições ao Carrinho */}
+                <div 
+                  className="w-9/12 max-w-sm h-16 rounded-t-lg flex items-center justify-center text-white relative mb-2"
+                  style={{ backgroundColor: COLORS[2] }}
+                >
+                  <div className="text-center">
+                    <div className="font-medium">Adições ao Carrinho</div>
+                    <div className="text-sm">{adsData.reduce((sum: number, campaign: any) => sum + campaign["Adições ao carrinho"], 0)}</div>
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] border-r-[20px] border-r-transparent z-10" style={{ borderTopColor: COLORS[2] }}></div>
+                </div>
+                
+                {/* Compras */}
+                <div 
+                  className="w-7/12 max-w-xs h-16 rounded-t-lg flex items-center justify-center text-white"
+                  style={{ backgroundColor: COLORS[3] }}
+                >
+                  <div className="text-center">
+                    <div className="font-medium">Compras</div>
+                    <div className="text-sm">{kpis.totalOrders}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-muted rounded p-3">
+                  <div className="font-medium">Taxa de cliques</div>
+                  <div className="text-lg mt-1">
+                    {formatPercentage(adsData.reduce((sum: number, campaign: any) => sum + campaign["Cliques no link"], 0) / 
+                      Math.max(1, adsData.reduce((sum: number, campaign: any) => sum + campaign["Impressões"], 0)) * 100)}
+                  </div>
+                </div>
+                <div className="bg-muted rounded p-3">
+                  <div className="font-medium">Taxa de conversão</div>
+                  <div className="text-lg mt-1">
+                    {formatPercentage(kpis.conversionRate)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
