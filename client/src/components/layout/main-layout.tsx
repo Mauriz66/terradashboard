@@ -49,7 +49,15 @@ export function MainLayout({ children }: MainLayoutProps) {
     const handleClickOutside = (e: MouseEvent) => {
       if (!isDesktop && mobileOpen) {
         const sidebar = document.getElementById("sidebar");
-        if (sidebar && !sidebar.contains(e.target as Node)) {
+        const menuButton = document.getElementById("mobile-menu-button");
+        
+        // Don't close if clicking on sidebar or hamburger button
+        if (
+          sidebar && 
+          !sidebar.contains(e.target as Node) && 
+          menuButton && 
+          !menuButton.contains(e.target as Node)
+        ) {
           setMobileOpen(false);
         }
       }
@@ -398,12 +406,13 @@ export function MainLayout({ children }: MainLayoutProps) {
         {/* Mobile Menu Button */}
         <div className="md:hidden fixed bottom-5 right-5 z-50">
           <Button
+            id="mobile-menu-button"
             variant="default"
             size="icon"
             className="h-12 w-12 rounded-full shadow-lg"
             onClick={toggleMobileSidebar}
           >
-            <Icons.menu className="h-6 w-6" />
+            {mobileOpen ? <Icons.close className="h-6 w-6" /> : <Icons.sidebarOpen className="h-6 w-6" />}
           </Button>
         </div>
       </div>
