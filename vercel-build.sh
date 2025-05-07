@@ -167,8 +167,11 @@ cd ..
 # Certificar que a pasta dist existe
 mkdir -p dist
 
-# Executar o build do servidor
-echo "✅ Construindo a API..."
-npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+# Criar a pasta api que o Vercel espera
+mkdir -p api
+
+# Executar o build do servidor e colocar na pasta api
+echo "✅ Construindo a API para a pasta api/..."
+npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/index.js
 
 echo "✅ Build concluído com sucesso!" 
