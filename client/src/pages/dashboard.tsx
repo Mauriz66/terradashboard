@@ -50,7 +50,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
               ? formatDate(entry.value)
               : typeof entry.value === 'number' && entry.name?.includes('R$')
                 ? formatCurrency(entry.value)
-                : entry.value
+                : typeof entry.value === 'number' && entry.name?.includes('ROI')
+                  ? formatROI(entry.value)
+                  : entry.value
             }`}
           </p>
         ))}
@@ -219,6 +221,70 @@ export default function DashboardPage() {
     };
   }).sort((a: any, b: any) => b.roi - a.roi);
 
+  // Calculate product stats
+  const productSales = filteredSalesData.reduce((acc: any, order: any) => {
+    const productName = order.produto_nome;
+    if (!acc[productName]) {
+      acc[productName] = {
+        name: productName,
+        total: 0,
+        count: 0,
+      };
+    }
+    acc[productName].total += parseNumberBR(order.produto_valor_total);
+    acc[productName].count += parseInt(order.produto_quantidade, 10) || 1;
+    return acc;
+  }, {});
+
+  const topProducts = Object.values(productSales)
+    .sort((a: any, b: any) => b.total - a.total)
+    .slice(0, 5);
+
+  // Get most active day and hour
+  const salesByDay = filteredSalesData.reduce((acc: any, order: any) => {
+    const date = parseDate(order.pedido_data);
+    const day = date.getDay();
+    const dayName = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][day];
+    
+    if (!acc[dayName]) {
+      acc[dayName] = {
+        name: dayName,
+        sales: 0,
+        count: 0,
+      };
+    }
+    
+    acc[dayName].sales += parseNumberBR(order.produto_valor_total);
+    acc[dayName].count += 1;
+    
+    return acc;
+  }, {});
+
+  const bestDay = Object.values(salesByDay)
+    .sort((a: any, b: any) => b.count - a.count)[0];
+  
+  const salesByHour = filteredSalesData.reduce((acc: any, order: any) => {
+    const hour = order.pedido_hora.split(':')[0];
+    
+    if (!acc[hour]) {
+      acc[hour] = {
+        hour,
+        sales: 0,
+        count: 0,
+      };
+    }
+    
+    acc[hour].sales += parseNumberBR(order.produto_valor_total);
+    acc[hour].count += 1;
+    
+    return acc;
+  }, {});
+
+  const bestHour = Object.values(salesByHour)
+    .sort((a: any, b: any) => b.count - a.count)[0];
+    
+  const topProductName = topProducts.length > 0 ? topProducts[0].name : 'N/A';
+
   return (
     <div>
       {/* KPI Cards */}
@@ -245,6 +311,11 @@ export default function DashboardPage() {
                 <span>{kpis.totalOrders} pedidos</span>
               </div>
             </div>
+            {!isLoading && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                <span>O produto mais vendido foi <b>{topProductName}</b></span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -270,6 +341,11 @@ export default function DashboardPage() {
                 <span>{adsData.length} campanhas</span>
               </div>
             </div>
+            {!isLoading && campaignPerformance.length > 0 && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                <span>Melhor campanha: <b>{campaignPerformance[0].name}</b> com ROI de {formatROI(campaignPerformance[0].roi)}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -295,6 +371,11 @@ export default function DashboardPage() {
                 <span>R$ 2.444,00 investidos</span>
               </div>
             </div>
+            {!isLoading && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                <span>Para cada {formatCurrency(kpis.cac)} investidos, 1 cliente adquirido</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -320,6 +401,11 @@ export default function DashboardPage() {
                 <span>56 adições ao carrinho</span>
               </div>
             </div>
+            {!isLoading && bestDay && bestHour && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                <span>Melhor momento para vendas: <b>{bestDay.name}</b> às <b>{bestHour.hour}h</b></span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -389,6 +475,16 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
           )}
+          
+          {!isLoading && (
+            <div className="mt-4 p-3 bg-muted/30 rounded-md border border-border">
+              <p className="text-xs text-foreground">
+                No período analisado, os dias com maior volume de vendas foram concentrados no 
+                {bestDay ? ` ${bestDay.name}` : ''} e as campanhas de marketing 
+                obtiveram um ROI médio de {formatROI(kpis.roi)}.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -430,10 +526,21 @@ export default function DashboardPage() {
                 </div>
               </div>
             )}
+            
+            {!isLoading && (
+              <div className="mt-4 p-3 bg-muted/30 rounded-md border border-border">
+                <p className="text-xs text-foreground">
+                  {kpis.institutePercentage > kpis.ecommercePercentage
+                    ? `O segmento Instituto representa ${formatPercentage(kpis.institutePercentage)} das vendas (${formatCurrency(kpis.instituteSales)}), superando E-commerce.`
+                    : `O segmento E-commerce representa ${formatPercentage(kpis.ecommercePercentage)} das vendas (${formatCurrency(kpis.ecommerceSales)}), superando Instituto.`
+                  }
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Campaign Performance Table */}
+        {/* Campaign Performance Chart */}
         <Card>
           <CardContent className="p-4">
             <h3 className="text-base font-medium mb-4">Performance das Campanhas</h3>
@@ -453,7 +560,7 @@ export default function DashboardPage() {
                       type="number" 
                       stroke="hsl(var(--foreground))"
                       domain={[0, 'dataMax']}
-                      tickFormatter={(value) => `${value}%`}
+                      tickFormatter={(value) => `${value.toFixed(1)}x`}
                     />
                     <YAxis 
                       dataKey="name" 
@@ -462,15 +569,27 @@ export default function DashboardPage() {
                       width={150}
                       tickFormatter={(value) => value.substring(0, 15) + (value.length > 15 ? '...' : '')}
                     />
-                    <RechartsTooltip content={<CustomTooltip />} />
+                    <RechartsTooltip 
+                      content={<CustomTooltip />} 
+                      formatter={(value: any) => [`${value.toFixed(1)}x`, 'ROI']}
+                    />
                     <Bar 
                       dataKey="roi" 
-                      name="ROI (%)" 
+                      name="ROI" 
                       fill="hsl(var(--primary))" 
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+            )}
+            
+            {!isLoading && campaignPerformance.length > 0 && (
+              <div className="mt-4 p-3 bg-muted/30 rounded-md border border-border">
+                <p className="text-xs text-foreground">
+                  A campanha <b>{campaignPerformance[0].name}</b> tem o melhor ROI de {formatROI(campaignPerformance[0].roi)}, 
+                  gerando {formatCurrency(campaignPerformance[0].revenue)} em receita a partir de um investimento de {formatCurrency(campaignPerformance[0].investment)}.
+                </p>
               </div>
             )}
           </CardContent>
