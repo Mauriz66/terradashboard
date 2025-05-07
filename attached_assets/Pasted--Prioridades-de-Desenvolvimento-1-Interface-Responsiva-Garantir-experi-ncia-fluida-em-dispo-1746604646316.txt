@@ -1,0 +1,306 @@
+### Prioridades de Desenvolvimento
+1. **Interface Responsiva**: Garantir experiência fluida em dispositivos móveis e desktop
+2. **Processamento Eficiente**: Otimizar análise de dados para performance
+3. **Design Intuitivo**: Foco na experiência do usuário com navegação clara
+4. **Flexibilidade de Análise**: Sistema robusto de filtros e comparações
+5. **Escalabilidade**: Preparação para processamento de dados de múltiplos meses
+
+## Resumo da Solicitação
+Criação de uma dashboard interativa para análise de vendas e campanhas de marketing, utilizando arquivos CSV (pedidosabril.csv e adsabril.csv) como fonte de dados. A dashboard deve ter um design responsivo, otimizado para visualização em dispositivos móveis e desktop, com um menu lateral para navegação e filtragem avançada. 
+
+A interface será dividida em quatro seções principais: Visão Geral (cruzamento de todos os dados), Instituto (foco educacional), E-commerce (outros produtos) e Tabela de Pedidos (detalhamento completo). 
+
+A solução inclui um painel administrativo para upload e gerenciamento de arquivos CSV mensais, com recursos para comparação entre diferentes períodos
+
+Tecnicamente, o projeto utilizará React.js com TypeScript, shadcn/ui para componentes de interface, Recharts para visualizações profissionais, e será otimizado para performance e escalabilidade.## Implementação do Painel Administrativo
+Com base nos arquivos reais fornecidos, o painel administrativo deve incluir:
+
+### Upload e Gerenciamento de Arquivos
+- **Interface de Upload**:
+  - Área para arrastar e soltar arquivos CSV
+  - Seletor de mês/ano para categorização automática
+  - Validação da estrutura do arquivo conforme os modelos:
+    - Verificação se pedidosXXX.csv contém as colunas: pedido_id, pedido_data, pedido_hora, etc.
+    - Verificação se adsXXX.csv contém as colunas: Início dos relatórios, Nome da campanha, etc.
+  - Mapeamento automático de colunas caso haja pequenas diferenças de nomenclatura
+
+### Processamento de Dados
+- **Normalização Automática**:
+  - Conversão de formatos de data (DD/MM/AAAA para padrão JS)
+  - Conversão de valores monetários (substituição de vírgula por ponto)
+  - Identificação automática de categorias (Instituto/Ecomerce) com base nas tags do nome da campanha
+  - Agrupamento de pedidos com mesmo ID
+  
+### Análise Comparativa Entre Meses
+- **Seleção Múltipla de Períodos**:
+  - Interface para selecionar diversos meses/anos para comparação
+  - Visualização side-by-side ou sobreposta
+  - Cálculo de variação percentual entre períodos
+
+### Tela Geral
+- **Painel Superior**: KPIs principais em cards destacados
+  - Total de vendas: R$ XX.XXX,XX
+  - Número de pedidos: XXX
+  - ROI médio das campanhas: XX%
+  - Custo de aquisição médio: R$ XX,XX
+  - Gráfico de linha dupla mostrando correlação temporal
+  - Opção de visualizar por dia/semana
+- **Gráfico Secundário**: Distribuição de vendas por categoria
+  - Gráfico de pizza ou barras dividindo Ecomerce vs. Instituto
+- **Tabela de Desempenho**: Ranking de campanhas por ROI
+  - Colunas para nome, investimento, retorno e ROI
+  - Ordenável por diferentes métricas
+
+### Tela Instituto
+- **KPIs Específicos**:
+  - Vendas de produtos educacionais
+  - Taxa de conversão específica
+  - Desempenho por tipo de curso/aula
+- **Gráfico Principal**: Desempenho das campanhas de Instituto
+  - Comparativo entre diferentes campanhas educacionais
+- **Análise de Horário**: Vendas educacionais por horário do dia
+  - Identificação de horários mais eficientes para conversão
+
+### Tela Ecomerce
+- **KPIs Específicos**:
+  - Top produtos vendidos
+  - Valor médio por carrinho
+  - Campanhas com melhor desempenho
+- **Gráfico Principal**: Desempenho de vendas por produto
+  - Ranking visual dos produtos mais vendidos
+- **Análise Geográfica**: Distribuição de vendas por estado
+  - Mapa de calor ou gráfico de barras por região
+
+### Tela de Tabelas
+- **Tabela de Pedidos**: 
+  - Todas as colunas do arquivo original
+  - Opções avançadas de filtragem e ordenação
+  - Destaque para pedidos de alto valor
+- **Tabela de Campanhas**:
+  - Todas as métricas das campanhas
+  - Cálculos adicionais de eficiência
+  - Destaque para campanhas mais eficientes## Especificações Técnicas
+
+### Tecnologias Recomendadas
+- **Frontend**: React.js com TypeScript
+- **UI Framework**: shadcn/ui para componentes consistentes e profissionais
+- **Biblioteca de Gráficos**: Recharts para visualizações profissionais
+- **Manipulação de Dados**: PapaParse para processamento de CSV
+- **Gerenciamento de Estado**: React Context API ou Redux
+- **Formatação de Dados**: date-fns para manipulação de datas e números
+- **Responsividade**: Tailwind CSS para estilização responsiva
+
+### Requisitos de Processamento de Dados
+- Manipulação apropriada de formatos de dados BR (vírgula como separador decimal)
+- Conversão de formato de data (DD/MM/AAAA para padrão JavaScript)
+- Agrupamento adequado de pedidos múltiplos com mesmo pedido_id
+- Identificação de campanhas por categoria através das tags no nome
+- Correlação temporal entre campanhas e pedidos
+- Cálculos corretos de KPIs com base nas fórmulas fornecidas
+- Armazenamento local para dados históricos
+
+### Funcionalidades do Menu Lateral
+- **Seleção de Período**: Calendário para filtrar dados por intervalo de datas
+- **Filtros de Produto**: 
+  - Por nome (busca incremental)
+  - Por faixa de preço
+  - Por quantidade vendida
+- **Filtros de Campanha**:
+  - Por tipo (Ecomerce/Instituto)
+  - Por desempenho (ROI, CTR)
+  - Por investimento
+- **Filtros Geográficos**:
+  - Por estado de envio
+- **Filtros de Status**:
+  - Por status do pedido
+- **Opções de Visualização**:
+  - Agrupamento diário/semanal/mensal
+  - Opções de tipo de gráfico (linha, barra, pizza)
+  - Modo de comparação entre períodos
+- **Métricas Personalizadas**:
+  - Opção para criar métricas customizadas
+  - Salvar configurações de dashboard## KPIs e Métricas Principais
+Com base na estrutura real dos arquivos, as seguintes métricas e KPIs devem ser implementados:
+
+### KPIs de Vendas (baseados em pedidosabril.csv)
+- Total de vendas (valor monetário)
+- Número total de pedidos
+- Valor médio do pedido (ticket médio)
+- Produtos mais vendidos (por quantidade e valor)
+- Distribuição geográfica de vendas (por estado)
+- Tendência de vendas por hora do dia
+- Taxa de conclusão de pedidos (baseado no status do pedido)
+
+### KPIs de Marketing (baseados em adsabril.csv)
+- ROI por campanha (Valor gerado / Valor investido)
+- CTR (Taxa de cliques) = Cliques / Impressões
+- CPL (Custo por Lead) = Valor usado / Visualizações da página
+- Taxa de conversão = Adições ao carrinho / Visualizações da página
+- Eficiência de campanha = Valor de conversão / Valor usado
+- Campanhas com melhor desempenho
+
+### KPIs Cruzados (combinando ambos arquivos)
+- Correlação entre campanhas e vendas por data
+- Distribuição de vendas por tipo de campanha (Ecomerce vs. Instituto)
+- Comparativo de ROI entre categorias
+- Tendência temporal de investimento vs. retorno## Interface e Design
+- Design moderno e profissional utilizando shadcn/ui como biblioteca de componentes
+  - Consistência visual em todos os elementos
+  - Design system bem definido (cores, tipografia, espaçamentos)
+  - Suporte a temas claro e escuro
+- Menu lateral (Left Menu) completo:
+  - Navegação entre as seções principais (Geral, Instituto, E-commerce, Tabela)
+  - Acesso rápido aos diferentes meses/anos disponíveis
+  - Área para filtros avançados e persistentes
+  - Opção de colapsar/expandir para maximizar área de visualização
+  - Área de usuário com informações e controles de acesso
+  - Notificações integradas para alertas importantes
+- Sistema de filtragem avançado e intuitivo
+  - Filtros por período (dia, semana, mês, trimestre, personalizado)
+  - Opção para salvar configurações de filtros personalizados
+  - Histórico de filtros utilizados
+- Visualizações sofisticadas com bibliotecas profissionais
+  - Utilização do Recharts para gráficos interativos de alta qualidade
+  - Gráficos responsivos com animações suaves
+  - Suporte a diferentes tipos de visualização (linha, barra, pizza, área, heat maps)
+  - Tooltips detalhados e personalizados
+  - Opções de exportação de gráficos como imagens
+  - Zoom e interação direta com os dados nos gráficos# Prompt para Desenvolver Dashboard Interativa de Vendas com Painel Administrativo
+
+## Objetivo
+Desenvolver uma dashboard interativa para análise de vendas e campanhas de marketing, integrando dados de anúncios (Facebook Ads) e pedidos para visualizar métricas-chave de desempenho. O sistema deve incluir um painel administrativo para gerenciar arquivos CSV de diferentes meses.
+
+## Arquivos de Dados
+- **pedidosabril.csv**: Dados detalhados de pedidos realizados
+  - Estrutura do arquivo:
+    - `pedido_id`: Identificador único do pedido
+    - `pedido_data`: Data do pedido (formato DD/MM/AAAA)
+    - `pedido_hora`: Hora do pedido (formato HH:MM)
+    - `pedido_status`: Status atual do pedido (ex: "Pedido Entregue")
+    - `envio_estado`: Estado de destino do pedido (ex: "SP")
+    - `produto_nome`: Nome do produto vendido
+    - `produto_valor_unitario`: Valor unitário do produto (formato BR com vírgula)
+    - `produto_quantidade`: Quantidade de itens do produto
+    - `produto_valor_total`: Valor total da venda do produto (formato BR com vírgula)
+  
+- **adsabril.csv**: Informações sobre campanhas de marketing no Facebook Ads
+  - Estrutura do arquivo:
+    - `Início dos relatórios`: Data de início do período (formato AAAA-MM-DD)
+    - `Término dos relatórios`: Data final do período (formato AAAA-MM-DD)
+    - `Nome da campanha`: Nome da campanha (contém tags como "[ECOM]" ou "[INSTITUTO]")
+    - `Alcance`: Número de pessoas alcançadas
+    - `Impressões`: Número total de impressões
+    - `CPM (custo por 1.000 impressões) (BRL)`: Custo para mil impressões
+    - `Cliques no link`: Número de cliques nos links da campanha
+    - `CPC (custo por clique no link) (BRL)`: Custo por clique
+    - `Visualizações da página de destino`: Número de visualizações da landing page
+    - `Custo por visualização da página de destino (BRL)`: Custo por visualização
+    - `Adições ao carrinho`: Número de produtos adicionados ao carrinho
+    - `Custo por adição ao carrinho (BRL)`: Custo por adição ao carrinho
+    - `Valor de conversão de adições ao carrinho`: Valor monetário das adições
+    - `Valor usado (BRL)`: Valor total gasto na campanha
+
+> **Nota sobre relações entre arquivos**: As campanhas em adsabril.csv contêm tags como "[ECOM]" e possivelmente "[INSTITUTO]" no campo "Nome da campanha", permitindo categorizar as campanhas. Para relacionar pedidos com campanhas, será necessário implementar uma lógica temporal (relacionando datas de pedidos com períodos de campanhas) e possivelmente por categoria de produto.
+
+## Estrutura da Dashboard
+A dashboard deve ser dividida em 4 seções principais:
+
+### 1. Visão Geral
+- Cruzamento completo de todos os dados
+- KPIs principais:
+  - Total de vendas (valor e quantidade)
+  - ROI das campanhas
+  - Custo de aquisição de cliente (CAC)
+  - Taxa de conversão geral
+- Gráficos de tendência de vendas ao longo do mês
+- Comparativo de desempenho entre campanhas
+
+### 2. Seção Instituto (Educacional)
+- Filtrado apenas para campanhas/vendas de cunho educacional
+- KPIs específicos:
+  - Vendas por tipo de curso/workshop
+  - Eficiência das campanhas educacionais
+  - Horários de maior conversão
+- Gráficos comparativos entre diferentes ofertas educacionais
+
+### 3. Seção E-commerce 
+- Filtrado para demais produtos (cafés, kits, latas, etc.)
+- KPIs específicos:
+  - Vendas por categoria de produto
+  - Eficiência das campanhas por tipo de produto
+  - Ticket médio
+- Gráficos de popularidade dos produtos
+
+### 4. Tabela de Pedidos Detalhada
+- Visualização em formato de tabela com todas as informações relevantes
+- Possibilidade de filtrar e ordenar por diferentes colunas
+- Exportação de dados selecionados
+
+## Requisitos Técnicos
+- Design responsivo com otimização para visualização em dispositivos móveis e desktop
+  - Layout adaptativo que reorganiza elementos conforme o tamanho da tela
+  - Interface touch-friendly para dispositivos móveis
+  - Menus colapsáveis em telas menores
+  - Gráficos que se redimensionam mantendo legibilidade
+  - Fonte e elementos de UI com tamanho adequado para cada dispositivo
+  - Priorização de dados críticos em visualizações mobile
+- Implementação de um menu lateral (left menu) para navegação e acesso às informações dos arquivos
+  - Menu fixo em desktop e deslizante/colapsável em mobile
+  - Navegação organizada por categorias (Geral, Instituto, E-commerce, Tabela de Pedidos)
+  - Acesso rápido a diferentes períodos disponíveis
+  - Opções de filtros avançados diretamente no menu
+- Sistema de filtros avançados:
+  - Filtros por data/período (dia, semana, mês)
+  - Filtros por campanha específica
+  - Filtros por tipo de produto/serviço
+  - Filtros por faixa de valor
+  - Filtros por origem de tráfego
+  - Possibilidade de combinar múltiplos filtros
+  - Salvar e carregar configurações de filtros
+- Utilização do framework shadcn/ui para elementos de interface
+  - Componentes consistentes e profissionais
+  - Temas personalizáveis
+  - Acessibilidade integrada
+- Implementação de biblioteca profissional para visualização de dados
+  - Recharts ou Chart.js para gráficos interativos e responsivos
+  - Visualizações avançadas e personalizáveis
+  - Animações suaves para transições entre dados
+- Filtros interativos que afetam todas as visualizações simultaneamente
+- Possibilidade de alternar entre visualização diária/semanal
+- Paleta de cores consistente e profissional
+- Todos os gráficos devem ter legendas claras e tooltips informativos
+- Dashboard deve carregar e processar os dados com boa performance
+- Tempos de carregamento otimizados, especialmente para conexões móveis
+
+## Funcionalidades Adicionais Desejáveis
+- Análise de correlação entre gastos em anúncios e vendas resultantes
+- Cálculo de métricas de eficiência para cada campanha
+- Capacidade de exportar relatórios em PDF
+- Sistema de alerta para indicar campanhas com desempenho abaixo do esperado
+
+## Painel de Administrador
+### Funcionalidades do Painel Administrativo
+- Interface dedicada para upload de novos arquivos CSV mensais
+- Sistema de organização de arquivos por mês/ano
+- Validação automática da estrutura dos arquivos enviados
+- Histórico de uploads com timestamps
+- Capacidade de editar metadados dos arquivos
+- Opção para arquivar/desarquivar meses anteriores - Design responsivo específico para área administrativa
+  - Versão mobile simplificada com foco nas funções essenciais
+  - Notificações e alertas adaptados para dispositivos móveis
+  - Funcionalidade de aprovação rápida em dispositivos móveis
+
+### Gerenciamento de Dados
+- Funcionalidade para combinar múltiplos arquivos CSV do mesmo período
+- Detecção automática de dados duplicados ou inconsistentes
+- Opção para correção manual de dados problemáticos
+- Backup automático antes de qualquer modificação
+- Log detalhado de todas as alterações realizadas nos dados
+- Interface móvel otimizada para visualização rápida de status e alertas
+
+### Análises Comparativas
+- Visualização comparativa entre diferentes meses
+- Gráficos de tendência ao longo de múltiplos períodos
+- Cálculo automático de variação percentual entre meses consecutivos
+- Detecção de anomalias nos dados novos comparados com histórico
+- Dashboards específicos para visualização mobile com métricas principais
