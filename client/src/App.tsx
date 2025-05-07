@@ -1,56 +1,34 @@
-import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Route, Switch } from "wouter";
+import { ThemeProvider } from "@/components/theme-provider";
 import NotFound from "@/pages/not-found";
-import { MainLayout } from "@/components/layout/main-layout";
-import DashboardPage from "@/pages/dashboard";
-import InstitutoPage from "@/pages/instituto";
-import ECommercePage from "@/pages/e-commerce";
-import TablesPage from "@/pages/tables";
-import UploadPage from "@/pages/upload";
-import { FilterProvider } from "@/context/filter-context";
-import { DashboardProvider } from "@/context/dashboard-context";
 
 // Componente básico para testar renderização
 const TestPage = () => (
   <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-    <h1>TerraFé Dashboard</h1>
-    <p>Se você está vendo esta mensagem, a renderização básica está funcionando!</p>
+    <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>TerraFé Dashboard</h1>
+    <p style={{ marginBottom: '1rem' }}>Se você está vendo esta mensagem, a renderização básica está funcionando!</p>
     <p>Verifique o console para mais detalhes sobre possíveis erros.</p>
+    
+    <div style={{ marginTop: '2rem', border: '1px solid #ddd', padding: '1rem', borderRadius: '0.5rem' }}>
+      <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Estado do Projeto</h2>
+      <p>Estamos fazendo ajustes para resolver os problemas de renderização.</p>
+      <ul style={{ listStyleType: 'disc', paddingLeft: '2rem' }}>
+        <li>Simplificamos o layout para diagnóstico</li>
+        <li>Removemos componentes problemáticos temporariamente</li>
+        <li>Em breve o dashboard completo estará disponível</li>
+      </ul>
+    </div>
   </div>
 );
 
-function Router() {
-  // Incluir TestPage como página inicial para diagnosticar problema
-  return (
-    <MainLayout>
-      <Switch>
-        <Route path="/" component={TestPage} />
-        <Route path="/dashboard" component={DashboardPage} />
-        <Route path="/instituto" component={InstitutoPage} />
-        <Route path="/ecommerce" component={ECommercePage} />
-        <Route path="/tables" component={TablesPage} />
-        <Route path="/upload" component={UploadPage} />
-        <Route component={NotFound} />
-      </Switch>
-    </MainLayout>
-  );
-}
-
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <FilterProvider>
-          <DashboardProvider>
-            <Toaster />
-            <Router />
-          </DashboardProvider>
-        </FilterProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="light" storageKey="terrafe-theme">
+      <Switch>
+        <Route path="/" component={TestPage} />
+        <Route component={NotFound} />
+      </Switch>
+    </ThemeProvider>
   );
 }
 
