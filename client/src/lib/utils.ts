@@ -35,9 +35,14 @@ export function formatPercentage(value: number): string {
   return `${Math.round(value)}%`;
 }
 
+export function formatROI(value: number): string {
+  const formattedValue = value.toFixed(1);
+  return formattedValue + "x";
+}
+
 export function calculateROI(investment: number, revenue: number): number {
   if (investment === 0) return 0;
-  return ((revenue - investment) / investment) * 100;
+  return revenue / investment; // Return multiplicative ROI instead of percentage
 }
 
 export function parseNumberBR(value: string): number {
