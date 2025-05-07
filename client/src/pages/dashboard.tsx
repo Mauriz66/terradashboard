@@ -1,10 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icons } from "@/components/icons";
-import { formatCurrency, formatPercentage, calculateROI } from "@/lib/utils";
+import { 
+  formatCurrency, 
+  formatPercentage, 
+  formatROI,
+  calculateROI, 
+  exportDashboardAsPDF
+} from "@/lib/utils";
 import { useDashboardContext } from "@/context/dashboard-context";
 import { useFilterContext } from "@/context/filter-context";
 import {
@@ -67,6 +73,7 @@ export default function DashboardPage() {
     isLoading,
     setIsLoading
   } = useDashboardContext();
+  const [activeTimeFrame, setActiveTimeFrame] = useState<"daily" | "weekly">("daily");
 
   // Fetch orders data
   const { 
@@ -254,7 +261,7 @@ export default function DashboardPage() {
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
             ) : (
-              <p className="text-2xl font-bold">{formatPercentage(kpis.roi)}</p>
+              <p className="text-2xl font-bold">{formatROI(kpis.roi)}</p>
             )}
             <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
               <span>Abril 2025</span>
@@ -323,15 +330,25 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
             <h3 className="text-base font-medium">Correlação Vendas e Campanhas</h3>
             <div className="flex items-center mt-2 sm:mt-0">
-              <Tabs defaultValue="daily">
+              <Tabs 
+                defaultValue="daily" 
+                value={activeTimeFrame}
+                onValueChange={(v) => setActiveTimeFrame(v as "daily" | "weekly")}
+              >
                 <TabsList className="mr-2">
                   <TabsTrigger value="daily">Diário</TabsTrigger>
                   <TabsTrigger value="weekly">Semanal</TabsTrigger>
                 </TabsList>
               </Tabs>
-              <button className="text-xs bg-muted px-2 py-1 rounded flex items-center">
+              <button 
+                className="text-xs bg-muted px-2 py-1 rounded flex items-center hover:bg-muted/80"
+                onClick={() => exportDashboardAsPDF("Visão Geral", {
+                  kpis,
+                  timeFrame: activeTimeFrame
+                })}
+              >
                 <Icons.download className="mr-1 h-3 w-3" />
-                Exportar
+                Exportar PDF
               </button>
             </div>
           </div>

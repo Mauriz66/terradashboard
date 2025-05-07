@@ -195,22 +195,24 @@ export function MainLayout({ children }: MainLayoutProps) {
               <TooltipProvider key={item.href} delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link href={item.href}>
-                      <a
-                        className={cn(
-                          "flex items-center px-3 py-2 rounded-md transition-colors",
-                          location === item.href
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground",
-                          !sidebarOpen && "justify-center"
-                        )}
-                      >
-                        {item.icon}
-                        {sidebarOpen && (
-                          <span className="ml-3 text-sm">{item.title}</span>
-                        )}
-                      </a>
-                    </Link>
+                    <div>
+                      <Link href={item.href}>
+                        <button
+                          className={cn(
+                            "flex items-center px-3 py-2 rounded-md transition-colors w-full text-left",
+                            location === item.href
+                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                              : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground",
+                            !sidebarOpen && "justify-center"
+                          )}
+                        >
+                          {item.icon}
+                          {sidebarOpen && (
+                            <span className="ml-3 text-sm">{item.title}</span>
+                          )}
+                        </button>
+                      </Link>
+                    </div>
                   </TooltipTrigger>
                   {!sidebarOpen && (
                     <TooltipContent side="right">
@@ -359,11 +361,12 @@ export function MainLayout({ children }: MainLayoutProps) {
         <Button
           id="mobile-sidebar-toggle"
           variant="default"
-          size="icon"
-          className="fixed bottom-4 left-4 z-50 rounded-full shadow-lg"
+          size="sm"
+          className="fixed top-4 left-4 z-50 shadow-md flex items-center"
           onClick={toggleMobileSidebar}
         >
-          <Icons.sidebarOpen className="h-5 w-5" />
+          <Icons.sidebarOpen className="h-4 w-4 mr-1" />
+          Menu
         </Button>
       )}
 
