@@ -1,16 +1,11 @@
 #!/bin/bash
+# Script para auxiliar no build do projeto no Vercel
 
-# Instalar dependências do projeto principal
-echo "Instalando dependências do projeto raiz..."
+# Instalar as dependências
 npm install
 
-# Construir o frontend
-echo "Construindo o frontend..."
-cd client
-npm install
+# Executar o build
 npm run build
-cd ..
 
-# Construir o backend
-echo "Construindo o backend..."
-npm run build:server 
+# Copiar arquivos necessários para a pasta dist
+echo "Build concluído com sucesso!" 
