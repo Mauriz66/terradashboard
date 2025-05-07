@@ -228,16 +228,29 @@ export default function DashboardPage() {
   // Ensure adsData is always an array
   const safeAdsData = Array.isArray(adsData) ? adsData : [];
   
+  // Separar as campanhas por tipo (ECOM e INSTITUTO)
+  const ecomCampaigns = safeAdsData.filter((campaign: any) => 
+    campaign["Nome da campanha"].includes("[ECOM]")
+  );
+  
+  const institutoCampaigns = safeAdsData.filter((campaign: any) => 
+    campaign["Nome da campanha"].includes("[INSTITUTO]")
+  );
+  
+  // Processar todas as campanhas
   const campaignPerformance = safeAdsData.map((campaign: any) => {
     const investment = parseNumberBR(campaign["Valor usado (BRL)"]);
     const revenue = parseNumberBR(campaign["Valor de conversão de adições ao carrinho"]);
     const roi = calculateROI(investment, revenue);
+    const type = campaign["Nome da campanha"].includes("[ECOM]") ? "E-commerce" : 
+                 campaign["Nome da campanha"].includes("[INSTITUTO]") ? "Instituto" : "Outro";
     
     return {
       name: campaign["Nome da campanha"],
       investment,
       revenue,
-      roi
+      roi,
+      type
     };
   }).sort((a: any, b: any) => b.roi - a.roi);
 
@@ -550,45 +563,131 @@ export default function DashboardPage() {
         {/* Campaign Performance Chart */}
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-base font-medium mb-4">Performance das Campanhas</h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+              <h3 className="text-base font-medium">Performance das Campanhas</h3>
+            </div>
             
             {isLoading ? (
               <Skeleton className="h-64 w-full" />
             ) : (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={campaignPerformance}
-                    layout="vertical"
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis 
-                      type="number" 
-                      stroke="hsl(var(--foreground))"
-                      domain={[0, 'dataMax']}
-                      tickFormatter={(value) => `${value.toFixed(1)}x`}
-                    />
-                    <YAxis 
-                      dataKey="name" 
-                      type="category" 
-                      stroke="hsl(var(--foreground))"
-                      width={150}
-                      tickFormatter={(value) => value.substring(0, 15) + (value.length > 15 ? '...' : '')}
-                    />
-                    <RechartsTooltip 
-                      content={<CustomTooltip />} 
-                      formatter={(value: any) => [`${value.toFixed(1)}x`, 'ROI']}
-                    />
-                    <Bar 
-                      dataKey="roi" 
-                      name="ROI" 
-                      fill={COLORS[1]} 
-                      radius={[0, 4, 4, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <Tabs defaultValue="all">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="all">Todas</TabsTrigger>
+                  <TabsTrigger value="ecom">E-commerce</TabsTrigger>
+                  <TabsTrigger value="instituto">Instituto</TabsTrigger>
+                </TabsList>
+              
+                <TabsContent value="all" className="m-0">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={campaignPerformance}
+                        layout="vertical"
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis 
+                          type="number" 
+                          stroke="hsl(var(--foreground))"
+                          domain={[0, 'dataMax']}
+                          tickFormatter={(value) => `${value.toFixed(1)}x`}
+                        />
+                        <YAxis 
+                          dataKey="name" 
+                          type="category" 
+                          stroke="hsl(var(--foreground))"
+                          width={150}
+                          tickFormatter={(value) => value.substring(0, 15) + (value.length > 15 ? '...' : '')}
+                        />
+                        <RechartsTooltip 
+                          content={<CustomTooltip />} 
+                          formatter={(value: any) => [`${value.toFixed(1)}x`, 'ROI']}
+                        />
+                        <Bar 
+                          dataKey="roi" 
+                          name="ROI" 
+                          fill={COLORS[1]} 
+                          radius={[0, 4, 4, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="ecom" className="m-0">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={campaignPerformance.filter(c => c.type === "E-commerce")}
+                        layout="vertical"
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis 
+                          type="number" 
+                          stroke="hsl(var(--foreground))"
+                          domain={[0, 'dataMax']}
+                          tickFormatter={(value) => `${value.toFixed(1)}x`}
+                        />
+                        <YAxis 
+                          dataKey="name" 
+                          type="category" 
+                          stroke="hsl(var(--foreground))"
+                          width={150}
+                          tickFormatter={(value) => value.substring(0, 15) + (value.length > 15 ? '...' : '')}
+                        />
+                        <RechartsTooltip 
+                          content={<CustomTooltip />} 
+                          formatter={(value: any) => [`${value.toFixed(1)}x`, 'ROI']}
+                        />
+                        <Bar 
+                          dataKey="roi" 
+                          name="ROI" 
+                          fill={COLORS[0]} 
+                          radius={[0, 4, 4, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="instituto" className="m-0">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={campaignPerformance.filter(c => c.type === "Instituto")}
+                        layout="vertical"
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis 
+                          type="number" 
+                          stroke="hsl(var(--foreground))"
+                          domain={[0, 'dataMax']}
+                          tickFormatter={(value) => `${value.toFixed(1)}x`}
+                        />
+                        <YAxis 
+                          dataKey="name" 
+                          type="category" 
+                          stroke="hsl(var(--foreground))"
+                          width={150}
+                          tickFormatter={(value) => value.substring(0, 15) + (value.length > 15 ? '...' : '')}
+                        />
+                        <RechartsTooltip 
+                          content={<CustomTooltip />} 
+                          formatter={(value: any) => [`${value.toFixed(1)}x`, 'ROI']}
+                        />
+                        <Bar 
+                          dataKey="roi" 
+                          name="ROI" 
+                          fill={COLORS[2]} 
+                          radius={[0, 4, 4, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+              </Tabs>
             )}
             
             {!isLoading && campaignPerformance.length > 0 && (

@@ -161,10 +161,6 @@ export default function InstitutoPage() {
               <h3 className="text-sm font-medium text-muted-foreground">
                 Total de Vendas Instituto
               </h3>
-              <span className="flex items-center text-green-500 text-xs">
-                <Icons.arrowUp className="mr-1 h-3 w-3" />
-                15%
-              </span>
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
