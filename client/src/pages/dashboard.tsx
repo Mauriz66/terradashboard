@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icons } from "@/components/icons";
@@ -702,6 +702,182 @@ export default function DashboardPage() {
         </Card>
       </div>
 
+      {/* Campaign Metrics by Sector */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Métricas de Campanhas por Setor</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <Skeleton className="h-[300px] w-full" />
+          ) : (
+            <Tabs defaultValue="ecom">
+              <TabsList className="mb-4">
+                <TabsTrigger value="ecom">E-commerce</TabsTrigger>
+                <TabsTrigger value="instituto">Instituto</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="ecom" className="m-0">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Alcance Total</h4>
+                    <p className="text-2xl font-bold">
+                      {ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Alcance"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Pessoas únicas</p>
+                  </div>
+                  
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Impressões</h4>
+                    <p className="text-2xl font-bold">
+                      {ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Impressões"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Visualizações</p>
+                  </div>
+                  
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Cliques no Link</h4>
+                    <p className="text-2xl font-bold">
+                      {ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Cliques no link"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      CTR: {(ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Cliques no link"]), 0) / 
+                        ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Impressões"]), 0) * 100).toFixed(2)}%
+                    </p>
+                  </div>
+                  
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Adições ao Carrinho</h4>
+                    <p className="text-2xl font-bold">
+                      {ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Adições ao carrinho"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Taxa de Conversão: {(ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Adições ao carrinho"]), 0) / 
+                        ecomCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Visualizações da página de destino"]), 0) * 100).toFixed(2)}%
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between border-b pb-2">
+                    <span className="font-medium">Campanha</span>
+                    <span className="font-medium text-right">Investimento / Receita / ROI</span>
+                  </div>
+                  
+                  {ecomCampaigns.map((campaign, index) => {
+                    const investment = parseNumberBR(campaign["Valor usado (BRL)"]);
+                    const revenue = parseNumberBR(campaign["Valor de conversão de adições ao carrinho"]);
+                    const roi = calculateROI(investment, revenue);
+                    
+                    return (
+                      <div key={index} className="flex justify-between pb-2">
+                        <span className="truncate max-w-[50%]">{campaign["Nome da campanha"]}</span>
+                        <span className="text-right">
+                          {formatCurrency(investment)} / {formatCurrency(revenue)} / 
+                          <span className={roi >= 1 ? "text-green-500" : "text-red-500"}>
+                            {formatROI(roi)}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="instituto" className="m-0">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Alcance Total</h4>
+                    <p className="text-2xl font-bold">
+                      {institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Alcance"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Pessoas únicas</p>
+                  </div>
+                  
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Impressões</h4>
+                    <p className="text-2xl font-bold">
+                      {institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Impressões"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Visualizações</p>
+                  </div>
+                  
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Cliques no Link</h4>
+                    <p className="text-2xl font-bold">
+                      {institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Cliques no link"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      CTR: {(institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Cliques no link"]), 0) / 
+                        institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Impressões"]), 0) * 100).toFixed(2)}%
+                    </p>
+                  </div>
+                  
+                  <div className="bg-muted/30 p-4 rounded-md border border-border">
+                    <h4 className="text-sm font-medium mb-2">Adições ao Carrinho</h4>
+                    <p className="text-2xl font-bold">
+                      {institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Adições ao carrinho"]), 0
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Taxa de Conversão: {(institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Adições ao carrinho"]), 0) / 
+                        institutoCampaigns.reduce((total, campaign) => 
+                        total + parseInt(campaign["Visualizações da página de destino"]), 0) * 100).toFixed(2)}%
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between border-b pb-2">
+                    <span className="font-medium">Campanha</span>
+                    <span className="font-medium text-right">Investimento / Receita / ROI</span>
+                  </div>
+                  
+                  {institutoCampaigns.map((campaign, index) => {
+                    const investment = parseNumberBR(campaign["Valor usado (BRL)"]);
+                    const revenue = parseNumberBR(campaign["Valor de conversão de adições ao carrinho"]);
+                    const roi = calculateROI(investment, revenue);
+                    
+                    return (
+                      <div key={index} className="flex justify-between pb-2">
+                        <span className="truncate max-w-[50%]">{campaign["Nome da campanha"]}</span>
+                        <span className="text-right">
+                          {formatCurrency(investment)} / {formatCurrency(revenue)} / 
+                          <span className={roi >= 1 ? "text-green-500" : "text-red-500"}>
+                            {formatROI(roi)}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+        </CardContent>
+      </Card>
 
     </div>
   );

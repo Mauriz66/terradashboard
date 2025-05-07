@@ -150,10 +150,6 @@ export default function ECommercePage() {
               <h3 className="text-sm font-medium text-muted-foreground">
                 Vendas E-commerce
               </h3>
-              <span className="flex items-center text-green-500 text-xs">
-                <Icons.arrowUp className="mr-1 h-3 w-3" />
-                10%
-              </span>
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
@@ -175,10 +171,6 @@ export default function ECommercePage() {
               <h3 className="text-sm font-medium text-muted-foreground">
                 Valor Médio do Pedido
               </h3>
-              <span className="flex items-center text-green-500 text-xs">
-                <Icons.arrowUp className="mr-1 h-3 w-3" />
-                5%
-              </span>
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
