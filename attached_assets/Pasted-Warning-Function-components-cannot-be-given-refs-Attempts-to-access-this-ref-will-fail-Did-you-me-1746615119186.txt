@@ -1,0 +1,32 @@
+Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?%s%s 
+
+Check the render method of `Primitive.button.SlotClone`. 
+    at ThemeToggle (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/src/components/theme-toggle.tsx:23:31)
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=e90ffc5c:79:13
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=e90ffc5c:56:13
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BOL2CCOG.js?v=e90ffc5c:42:13
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=e90ffc5c:79:13
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=e90ffc5c:56:13
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BOL2CCOG.js?v=e90ffc5c:42:13
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PJTKKPLP.js?v=e90ffc5c:1929:13
+    at https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e90ffc5c:198:13
+    at Provider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js?v=e90ffc5c:22:15)
+    at Provider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js?v=e90ffc5c:22:15)
+    at Popper (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PJTKKPLP.js?v=e90ffc5c:1921:11)
+    at Tooltip (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e90ffc5c:107:5)
+    at Provider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js?v=e90ffc5c:22:15)
+    at TooltipProvider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e90ffc5c:63:5)
+    at div
+    at div
+    at header
+    at div
+    at div
+    at MainLayout (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/src/components/layout/main-layout.tsx?t=1746614663333:44:30)
+    at Router
+    at DashboardProvider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/src/context/dashboard-context.tsx:44:37)
+    at FilterProvider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/src/context/filter-context.tsx:35:34)
+    at Provider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UBQ2LXDH.js?v=e90ffc5c:22:15)
+    at TooltipProvider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e90ffc5c:63:5)
+    at QueryClientProvider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e90ffc5c:2805:3)
+    at App
+    at ThemeProvider (https://283df7d7-e665-45e7-8aa6-6e964b12a12f-00-2vvj3z7o5x9l4.spock.replit.dev/src/components/theme-provider.tsx:25:3)

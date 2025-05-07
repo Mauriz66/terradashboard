@@ -68,14 +68,7 @@ export default function UploadPage() {
       status: "success",
       type: "ads",
     },
-    {
-      id: 3,
-      filename: "pedidosmarco.csv",
-      period: "Março 2025",
-      uploadDate: "02/04/2025",
-      status: "success",
-      type: "orders",
-    },
+
   ]);
 
   const uploadMutation = useMutation({
