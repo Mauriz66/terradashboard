@@ -83,6 +83,31 @@
         margin: 2rem auto;
         max-width: 600px;
       }
+
+      .success-message {
+        background-color: #ecfdf5;
+        border: 1px solid #10b981;
+      }
+
+      .error-message {
+        background-color: #fef2f2;
+        border: 1px solid #ef4444;
+      }
+
+      .btn {
+        display: inline-block;
+        background-color: #166534;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        text-decoration: none;
+        margin-top: 1rem;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background-color: #115329;
+      }
     `]));
     
     // Verificar a API
@@ -103,8 +128,21 @@
           <h2>Conexão estabelecida!</h2>
           <p>Total de pedidos carregados: ${data.length}</p>
           <p>Por favor, acesse a aplicação completa em:</p>
-          <p><a href="https://github.com/Mauriz66/terradashboard" target="_blank">GitHub do Projeto</a></p>
+          <p>
+            <a href="/dashboard" class="btn">Acessar Dashboard Completo</a>
+          </p>
+          <p style="margin-top: 15px">
+            <small>Ou visite o <a href="https://github.com/Mauriz66/terradashboard" target="_blank">GitHub do Projeto</a></small>
+          </p>
         `;
+        messageEl.classList.add('success-message');
+        
+        // Adicionar botão para carregar dashboard diretamente
+        const dashboardBtn = messageEl.querySelector('.btn');
+        dashboardBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          loadFullDashboard();
+        });
       } else {
         throw new Error('Erro ao carregar dados');
       }
@@ -115,8 +153,37 @@
         <p>Não foi possível estabelecer conexão com o backend.</p>
         <p>Este é um ambiente de demonstração. Para executar o aplicativo completo, siga as instruções no:</p>
         <p><a href="https://github.com/Mauriz66/terradashboard" target="_blank">GitHub do Projeto</a></p>
+        <p><button class="btn" id="retry-btn">Tentar Novamente</button></p>
       `;
+      messageEl.classList.add('error-message');
+      
+      // Adicionar evento para tentar novamente
+      const retryBtn = document.getElementById('retry-btn');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', checkApi);
+      }
     }
+  }
+
+  // Função para carregar o dashboard completo
+  function loadFullDashboard() {
+    const root = document.getElementById('root');
+    root.innerHTML = '';
+    
+    // Criar elemento de carregamento
+    const loadingEl = createElement('div', { class: 'loading-container' }, [
+      createElement('h1', { class: 'loading-title' }, ['TerraFé Dashboard']),
+      createElement('div', { class: 'loading-spinner' }, []),
+      createElement('p', {}, ['Carregando dashboard completo...'])
+    ]);
+    
+    root.appendChild(loadingEl);
+    
+    // Simular carregamento do app completo (em produção, carregaria os scripts/css do app real)
+    setTimeout(() => {
+      // Redirecionar para o endpoint que carregaria o app real se estivesse disponível
+      window.location.href = '/api/dashboard';
+    }, 1500);
   }
 
   // Iniciar o aplicativo quando a página estiver carregada
