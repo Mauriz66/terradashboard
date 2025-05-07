@@ -21,15 +21,16 @@ import {
   TooltipProps,
 } from "recharts";
 
+// Cores com melhor contraste
 const COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--secondary))",
-  "hsl(var(--accent))",
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
+  "hsl(215, 90%, 50%)",  // Azul vibrante
+  "hsl(160, 70%, 45%)",  // Verde vibrante
+  "hsl(25, 90%, 55%)",   // Laranja vibrante
+  "hsl(275, 80%, 60%)",  // Roxo vibrante
+  "hsl(340, 80%, 55%)",  // Rosa vibrante
+  "hsl(190, 90%, 50%)",  // Azul turquesa vibrante
+  "hsl(55, 90%, 50%)",   // Amarelo vibrante
+  "hsl(0, 85%, 60%)",    // Vermelho vibrante
 ];
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
@@ -261,7 +262,7 @@ export default function ECommercePage() {
                     <Bar
                       dataKey="revenue"
                       name="Receita (R$)"
-                      fill="hsl(var(--primary))"
+                      fill={COLORS[0]}
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
@@ -280,32 +281,44 @@ export default function ECommercePage() {
             {isLoading ? (
               <Skeleton className="h-[300px] w-full" />
             ) : (
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={stateDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      dataKey="revenue"
-                      nameKey="state"
-                      label={({ name, percent }) =>
-                        `${name}: ${(percent * 100).toFixed(0)}%`
-                      }
-                    >
-                      {stateDistribution.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Legend />
-                    <RechartsTooltip content={<CustomTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] overflow-y-auto">
+                <div className="space-y-4">
+                  {stateDistribution.map((item, index) => {
+                    const totalRevenue = stateDistribution.reduce((acc, curr) => acc + curr.revenue, 0);
+                    const percentage = (item.revenue / totalRevenue) * 100;
+                    return (
+                      <div key={index} className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="font-medium">{item.state}</span>
+                          <span className="text-sm">{formatCurrency(item.revenue)} ({percentage.toFixed(1)}%)</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2.5">
+                          <div 
+                            className="h-2.5 rounded-full" 
+                            style={{ 
+                              width: `${percentage}%`,
+                              backgroundColor: COLORS[index % COLORS.length],
+                            }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {item.orders} {item.orders === 1 ? 'pedido' : 'pedidos'}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  <div className="mt-4 text-sm text-muted-foreground">
+                    <div className="flex justify-between font-medium">
+                      <span>Estado com maior receita:</span>
+                      <span>{stateDistribution[0]?.state || '-'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Total de estados:</span>
+                      <span>{stateDistribution.length}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>
@@ -345,7 +358,7 @@ export default function ECommercePage() {
                   <Bar
                     dataKey="value"
                     name="Percentual (%)"
-                    fill="hsl(var(--secondary))"
+                    fill={COLORS[1]}
                     radius={[4, 4, 0, 0]}
                   />
                 </BarChart>

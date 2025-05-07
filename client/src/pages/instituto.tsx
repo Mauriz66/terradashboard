@@ -23,12 +23,13 @@ import {
   TooltipProps,
 } from "recharts";
 
+// Cores com melhor contraste
 const COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--secondary))",
-  "hsl(var(--accent))",
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
+  "hsl(215, 90%, 50%)",  // Azul vibrante
+  "hsl(160, 70%, 45%)",  // Verde vibrante
+  "hsl(25, 90%, 55%)",   // Laranja vibrante
+  "hsl(275, 80%, 60%)",  // Roxo vibrante
+  "hsl(340, 80%, 55%)",  // Rosa vibrante
 ];
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
@@ -291,7 +292,7 @@ export default function InstitutoPage() {
                     <Bar
                       dataKey="revenue"
                       name="Receita (R$)"
-                      fill="hsl(var(--secondary))"
+                      fill={COLORS[1]}
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>

@@ -37,7 +37,17 @@ import {
   calculatePercentage
 } from "@/lib/utils";
 
-const COLORS = ["hsl(215, 90%, 50%)", "hsl(160, 70%, 45%)", "hsl(25, 90%, 55%)", "hsl(275, 80%, 60%)"];
+// Cores com melhor contraste
+const COLORS = [
+  "hsl(215, 90%, 50%)",  // Azul vibrante
+  "hsl(160, 70%, 45%)",  // Verde vibrante
+  "hsl(25, 90%, 55%)",   // Laranja vibrante
+  "hsl(275, 80%, 60%)",  // Roxo vibrante
+  "hsl(340, 80%, 55%)",  // Rosa vibrante
+  "hsl(190, 90%, 50%)",  // Azul turquesa vibrante
+  "hsl(55, 90%, 50%)",   // Amarelo vibrante
+  "hsl(0, 85%, 60%)",    // Vermelho vibrante
+];
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
