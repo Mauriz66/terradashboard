@@ -124,14 +124,14 @@ export function MainLayout({ children }: MainLayoutProps) {
         {/* Sidebar Header */}
         <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
           <div className="flex items-center">
-            <img
-              src={theme === "dark" ? "attached_assets/logo-terrafe-black.png" : "attached_assets/logo-terrafe.png"}
-              alt="TerraFé"
+            <span 
               className={cn(
-                "h-8 transition-all duration-300",
+                "text-2xl transition-all duration-300",
                 sidebarOpen ? "mr-2" : "mr-0"
               )}
-            />
+            >
+              ☕
+            </span>
             {sidebarOpen && <span className="text-xl font-semibold">TerraFé</span>}
           </div>
           <Button

@@ -416,11 +416,7 @@ export default function DashboardPage() {
                 <span>{kpis.totalOrders} pedidos analisados</span>
               </div>
             </div>
-            {!isLoading && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                <span>Programe campanhas para {bestDay ? bestDay.name : "os dias"} para maximizar vendas</span>
-              </div>
-            )}
+
           </CardContent>
         </Card>
       </div>
@@ -433,12 +429,10 @@ export default function DashboardPage() {
             <div className="flex items-center mt-2 sm:mt-0">
               <Tabs 
                 defaultValue="daily" 
-                value={activeTimeFrame}
-                onValueChange={(v) => setActiveTimeFrame(v as "daily" | "weekly")}
+                value="daily"
               >
                 <TabsList className="mr-2">
                   <TabsTrigger value="daily">Diário</TabsTrigger>
-                  <TabsTrigger value="weekly">Semanal</TabsTrigger>
                 </TabsList>
               </Tabs>
               <button 
