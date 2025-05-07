@@ -13,11 +13,22 @@ import UploadPage from "@/pages/upload";
 import { FilterProvider } from "@/context/filter-context";
 import { DashboardProvider } from "@/context/dashboard-context";
 
+// Componente básico para testar renderização
+const TestPage = () => (
+  <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+    <h1>TerraFé Dashboard</h1>
+    <p>Se você está vendo esta mensagem, a renderização básica está funcionando!</p>
+    <p>Verifique o console para mais detalhes sobre possíveis erros.</p>
+  </div>
+);
+
 function Router() {
+  // Incluir TestPage como página inicial para diagnosticar problema
   return (
     <MainLayout>
       <Switch>
-        <Route path="/" component={DashboardPage} />
+        <Route path="/" component={TestPage} />
+        <Route path="/dashboard" component={DashboardPage} />
         <Route path="/instituto" component={InstitutoPage} />
         <Route path="/ecommerce" component={ECommercePage} />
         <Route path="/tables" component={TablesPage} />
