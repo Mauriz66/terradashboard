@@ -12,6 +12,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // Capturar erros não tratados
+      window.addEventListener('error', function(event) {
+        console.error('Erro capturado:', event.error);
+        
+        // Mostrar mensagem de erro no DOM para facilitar depuração
+        if (document.getElementById('root')) {
+          const errorDiv = document.createElement('div');
+          errorDiv.style.padding = '20px';
+          errorDiv.style.margin = '20px';
+          errorDiv.style.border = '1px solid red';
+          errorDiv.style.borderRadius = '5px';
+          errorDiv.style.backgroundColor = '#ffeeee';
+          errorDiv.style.color = 'red';
+          errorDiv.style.fontFamily = 'monospace';
+          errorDiv.innerHTML = `<h2>Erro durante renderização:</h2><pre>${event.error?.message || 'Erro desconhecido'}</pre>`;
+          
+          document.getElementById('root').appendChild(errorDiv);
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
