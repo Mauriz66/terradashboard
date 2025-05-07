@@ -36,8 +36,14 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  const server = await registerRoutes(app);
+let server: any;
+
+// Para o Vercel, exportamos o app
+export default app;
+
+// Função para iniciar o servidor
+export async function startServer() {
+  server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -67,4 +73,9 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
-})();
+}
+
+// Iniciar o servidor se não estiver em ambiente de produção ou Vercel
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  startServer();
+}
