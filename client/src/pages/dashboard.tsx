@@ -304,10 +304,7 @@ export default function DashboardPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground">Total de Vendas</h3>
-              <span className="flex items-center text-green-500 text-xs">
-                <Icons.arrowUp className="mr-1 h-3 w-3" />
-                12%
-              </span>
+
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
@@ -334,10 +331,7 @@ export default function DashboardPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground">ROI Médio</h3>
-              <span className="flex items-center text-green-500 text-xs">
-                <Icons.arrowUp className="mr-1 h-3 w-3" />
-                8.2%
-              </span>
+
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
@@ -364,10 +358,7 @@ export default function DashboardPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground">Custo de Aquisição</h3>
-              <span className="flex items-center text-red-500 text-xs">
-                <Icons.arrowUp className="mr-1 h-3 w-3" />
-                3%
-              </span>
+
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
@@ -394,10 +385,7 @@ export default function DashboardPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground">Melhor Momento de Vendas</h3>
-              <span className="flex items-center text-blue-500 text-xs">
-                <Icons.clock className="mr-1 h-3 w-3" />
-                Análise
-              </span>
+
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />

@@ -9,6 +9,7 @@ import {
   Download,
   Filter,
   Home,
+  Menu,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
@@ -60,4 +61,5 @@ export const Icons = {
   arrowUp: ArrowUp,
   arrowDown: ArrowDown,
   clock: Clock,
+  menu: Menu,
 };

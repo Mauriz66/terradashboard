@@ -395,25 +395,17 @@ export function MainLayout({ children }: MainLayoutProps) {
           {children}
         </main>
         
-        {/* Mobile Bottom Navigation */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border h-14 flex items-center justify-around px-2 z-50">
-          {navItems.map((item) => (
-            <Link href={item.href} key={item.title}>
-              <div 
-                className={cn(
-                  "flex flex-col items-center justify-center", 
-                  "p-2 rounded-md transition-colors",
-                  location === item.href
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {item.icon}
-                <span className="text-[10px] mt-1">{item.title}</span>
-              </div>
-            </Link>
-          ))}
-        </nav>
+        {/* Mobile Menu Button */}
+        <div className="md:hidden fixed bottom-5 right-5 z-50">
+          <Button
+            variant="default"
+            size="icon"
+            className="h-12 w-12 rounded-full shadow-lg"
+            onClick={toggleMobileSidebar}
+          >
+            <Icons.menu className="h-6 w-6" />
+          </Button>
+        </div>
       </div>
     </div>
   );
