@@ -24,8 +24,13 @@
       "dest": "/api/upload.js"
     },
     {
+      "src": "/assets/(.*)",
+      "headers": { "content-type": "application/javascript" },
+      "dest": "/client/dist/assets/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/client/$1"
+      "dest": "/client/dist/$1"
     }
   ]
 } 
