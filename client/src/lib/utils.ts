@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format } from "date-fns";
+import { format, isValid, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export function cn(...inputs: ClassValue[]) {
@@ -17,15 +17,60 @@ export function formatCurrency(value: string | number): string {
 }
 
 export function parseDate(dateStr: string): Date {
-  // Handle Brazilian date format (DD/MM/YYYY)
-  const parts = dateStr.split('/');
-  if (parts.length === 3) {
-    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+  if (!dateStr) {
+    console.warn("Data vazia recebida para parseDate");
+    return new Date(); // Retorna data atual como fallback
   }
-  return new Date(dateStr);
+  
+  // Limpar a string de data
+  const cleanedDate = dateStr.trim();
+  
+  // Tentativa 1: Formato brasileiro DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(cleanedDate)) {
+    const [day, month, year] = cleanedDate.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+    
+    // Verificar se a data é válida (ex: 31/02/2022 seria inválida)
+    if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
+      return date;
+    }
+    console.warn(`Data em formato DD/MM/YYYY inválida: ${cleanedDate}`);
+  }
+  
+  // Tentativa 2: Formato ISO YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleanedDate)) {
+    const date = parse(cleanedDate, 'yyyy-MM-dd', new Date());
+    if (isValid(date)) {
+      return date;
+    }
+    console.warn(`Data em formato YYYY-MM-DD inválida: ${cleanedDate}`);
+  }
+  
+  // Tentativa 3: Formato ISO com timestamp YYYY-MM-DDTHH:mm:ss
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(cleanedDate)) {
+    const date = new Date(cleanedDate);
+    if (isValid(date)) {
+      return date;
+    }
+    console.warn(`Data em formato ISO com timestamp inválida: ${cleanedDate}`);
+  }
+  
+  // Tentativa 4: Analisar com Date.parse como último recurso
+  const timestamp = Date.parse(cleanedDate);
+  if (!isNaN(timestamp)) {
+    return new Date(timestamp);
+  }
+  
+  // Fallback para data atual com aviso no console
+  console.warn(`Não foi possível analisar a data: ${cleanedDate}, usando data atual como fallback`);
+  return new Date();
 }
 
 export function formatDate(date: Date, formatStr: string = "dd/MM/yyyy"): string {
+  if (!date || !isValid(date)) {
+    console.warn("Data inválida para formatação", date);
+    return "Data inválida";
+  }
   return format(date, formatStr, { locale: ptBR });
 }
 
@@ -45,11 +90,21 @@ export function calculateROI(investment: number, revenue: number): number {
 export function parseNumberBR(value: string): number {
   if (!value) return 0;
   
-  // Handle Brazilian number format: Replace comma with dot
-  return parseFloat(value.replace(".", "").replace(",", "."));
+  // Sanitizar o valor antes de converter
+  const sanitized = String(value).trim();
+  if (sanitized === '' || sanitized === '-') return 0;
+  
+  try {
+    // Handle Brazilian number format: Replace comma with dot
+    return parseFloat(sanitized.replace(".", "").replace(",", "."));
+  } catch (error) {
+    console.warn(`Erro ao analisar número: ${value}`, error);
+    return 0;
+  }
 }
 
 export function identifyCategory(name: string): "instituto" | "ecommerce" {
+  if (!name) return "ecommerce";
   return name.includes('Curso') || name.includes('Oficina') ? "instituto" : "ecommerce";
 }
 
@@ -68,7 +123,7 @@ export function downloadCSV(data: any[], filename: string) {
   // Convert data to CSV
   const csvContent = [
     headers.join(','),
-    ...data.map(row => headers.map(header => JSON.stringify(row[header])).join(','))
+    ...data.map(row => headers.map(header => JSON.stringify(row[header] || '')).join(','))
   ].join('\n');
   
   // Create download link

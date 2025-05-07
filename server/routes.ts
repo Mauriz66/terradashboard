@@ -7,7 +7,41 @@ import path from "path";
 import csv from "csv-parser";
 
 // Set up multer for file uploads
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ 
+  dest: "uploads/",
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limite de arquivo
+  },
+  fileFilter: (req, file, cb) => {
+    // Verificar se é um arquivo CSV
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos CSV são permitidos'));
+    }
+  }
+});
+
+// Esquemas esperados para validação dos CSVs
+const expectedOrderHeaders = [
+  'pedido_id', 'pedido_data', 'pedido_hora', 'pedido_status', 
+  'envio_estado', 'produto_nome', 'produto_valor_unitario', 
+  'produto_quantidade', 'produto_valor_total'
+];
+
+const expectedCampaignHeaders = [
+  'Início dos relatórios', 'Término dos relatórios', 'Nome da campanha',
+  'Alcance', 'Impressões', 'CPM (custo por 1.000 impressões) (BRL)',
+  'Cliques no link', 'CPC (custo por clique no link) (BRL)',
+  'Visualizações da página de destino', 'Custo por visualização da página de destino (BRL)',
+  'Adições ao carrinho', 'Custo por adição ao carrinho (BRL)',
+  'Valor de conversão de adições ao carrinho', 'Valor usado (BRL)'
+];
+
+// Função para validar as colunas do CSV
+function validateCSVHeaders(headers: string[], expectedHeaders: string[]): boolean {
+  return expectedHeaders.every(header => headers.includes(header));
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create uploads directory if it doesn't exist
@@ -22,7 +56,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orders = await storage.getOrders();
       res.json(orders);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch orders" });
+      console.error("Erro ao buscar pedidos:", error);
+      res.status(500).json({ error: "Falha ao buscar pedidos" });
     }
   });
 
@@ -31,13 +66,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const campaigns = await storage.getCampaigns();
       res.json(campaigns);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch campaigns" });
+      console.error("Erro ao buscar campanhas:", error);
+      res.status(500).json({ error: "Falha ao buscar campanhas" });
     }
   });
 
   app.post("/api/upload", upload.single("file"), async (req, res) => {
     if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
+      return res.status(400).json({ error: "Nenhum arquivo enviado" });
     }
 
     const fileType = req.body.type;
@@ -46,21 +82,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     if (!fileType || !month || !year) {
       return res.status(400).json({ 
-        error: "Missing required parameters (type, month, year)" 
+        error: "Parâmetros obrigatórios ausentes (type, month, year)" 
       });
     }
 
     const filePath = req.file.path;
     const results: any[] = [];
+    let headers: string[] = [];
+    let hasValidationError = false;
+    let validationErrorMessage = '';
 
     try {
       // Process the CSV file
       await new Promise<void>((resolve, reject) => {
         fs.createReadStream(filePath)
           .pipe(csv({ separator: ';' }))
-          .on('data', (data) => results.push(data))
+          .on('headers', (csvHeaders) => {
+            headers = csvHeaders;
+            // Validar os cabeçalhos conforme o tipo de arquivo
+            if (fileType === 'orders' && !validateCSVHeaders(csvHeaders, expectedOrderHeaders)) {
+              hasValidationError = true;
+              validationErrorMessage = 'O arquivo CSV de pedidos não contém todas as colunas necessárias';
+              reject(new Error(validationErrorMessage));
+            } else if (fileType === 'ads' && !validateCSVHeaders(csvHeaders, expectedCampaignHeaders)) {
+              hasValidationError = true;
+              validationErrorMessage = 'O arquivo CSV de campanhas não contém todas as colunas necessárias';
+              reject(new Error(validationErrorMessage));
+            }
+          })
+          .on('data', (data) => {
+            // Validação básica de dados
+            if (fileType === 'orders') {
+              // Certifique-se de que os campos numéricos são parsable
+              try {
+                const valorUnitario = parseFloat(data.produto_valor_unitario.replace(',', '.'));
+                const quantidade = parseInt(data.produto_quantidade);
+                const valorTotal = parseFloat(data.produto_valor_total.replace(',', '.'));
+                
+                // Verificar cálculos (valor total = valor unitário * quantidade)
+                const calculatedTotal = valorUnitario * quantidade;
+                // Permitir uma pequena margem de erro para arredondamentos
+                if (Math.abs(calculatedTotal - valorTotal) > 0.1) {
+                  console.warn(`Aviso: O valor total ${valorTotal} não corresponde ao cálculo ${valorUnitario} * ${quantidade} = ${calculatedTotal} para o pedido ${data.pedido_id}`);
+                }
+              } catch (e) {
+                console.warn('Aviso: Erro ao validar campos numéricos', e);
+              }
+            }
+            
+            results.push(data);
+          })
           .on('end', () => {
-            resolve();
+            if (!hasValidationError) {
+              resolve();
+            }
           })
           .on('error', (error) => {
             reject(error);
@@ -73,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (fileType === 'ads') {
         await storage.saveCampaigns(results);
       } else {
-        return res.status(400).json({ error: "Invalid file type" });
+        return res.status(400).json({ error: "Tipo de arquivo inválido" });
       }
 
       // Clean up the temporary file
@@ -82,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Return success response
       res.status(200).json({
         success: true,
-        message: "File processed successfully",
+        message: "Arquivo processado com sucesso",
         file: {
           id: Date.now(),
           filename: req.file.originalname,
@@ -97,7 +172,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-      res.status(500).json({ error: "Failed to process the file" });
+      
+      const errorMessage = hasValidationError ? validationErrorMessage : "Falha ao processar o arquivo";
+      console.error("Erro no upload:", error);
+      res.status(400).json({ error: errorMessage });
     }
   });
 
@@ -117,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               storage.saveOrders(orders).then(() => resolve());
             });
         });
-        console.log(`Loaded ${orders.length} orders from sample data`);
+        console.log(`Carregados ${orders.length} pedidos dos dados de exemplo`);
       }
     }
 
@@ -135,11 +213,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               storage.saveCampaigns(campaigns).then(() => resolve());
             });
         });
-        console.log(`Loaded ${campaigns.length} campaigns from sample data`);
+        console.log(`Carregadas ${campaigns.length} campanhas dos dados de exemplo`);
       }
     }
   } catch (error) {
-    console.error("Error loading initial data:", error);
+    console.error("Erro ao carregar dados iniciais:", error);
   }
 
   const httpServer = createServer(app);
