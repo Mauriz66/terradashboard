@@ -106,18 +106,22 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    if (ordersData && campaignsData) {
+    // Ensure we have arrays for both data sources
+    const orders = Array.isArray(ordersData) ? ordersData : [];
+    const campaigns = Array.isArray(campaignsData) ? campaignsData : [];
+
+    if (orders.length > 0 && campaigns.length > 0) {
       setIsLoading(false);
-      setSalesData(ordersData);
-      setAdsData(campaignsData);
+      setSalesData(orders);
+      setAdsData(campaigns);
       
       // Calculate KPIs
-      const totalSales = ordersData.reduce((sum: number, order: any) => 
+      const totalSales = orders.reduce((sum: number, order: any) => 
         sum + parseNumberBR(order.produto_valor_total), 0);
       
-      const totalOrders = new Set(ordersData.map((order: any) => order.pedido_id)).size;
+      const totalOrders = new Set(orders.map((order: any) => order.pedido_id)).size;
       
-      const totalInvestment = campaignsData.reduce((sum: number, campaign: any) => 
+      const totalInvestment = campaigns.reduce((sum: number, campaign: any) => 
         sum + parseNumberBR(campaign["Valor usado (BRL)"]), 0);
         
       const totalRevenue = totalSales;
@@ -126,21 +130,21 @@ export default function DashboardPage() {
       
       const cac = totalInvestment / totalOrders;
       
-      const addToCart = campaignsData.reduce((sum: number, campaign: any) => 
+      const addToCart = campaigns.reduce((sum: number, campaign: any) => 
         sum + campaign["Adições ao carrinho"], 0);
         
-      const pageViews = campaignsData.reduce((sum: number, campaign: any) => 
+      const pageViews = campaigns.reduce((sum: number, campaign: any) => 
         sum + campaign["Visualizações da página de destino"], 0);
         
       const conversionRate = (addToCart / pageViews) * 100;
       
       // Calculate Instituto vs E-commerce split
-      const instituteOrders = ordersData.filter((order: any) => 
+      const instituteOrders = orders.filter((order: any) => 
         order.produto_nome.includes('Curso') || 
         order.produto_nome.includes('Oficina')
       );
       
-      const ecommerceOrders = ordersData.filter((order: any) => 
+      const ecommerceOrders = orders.filter((order: any) => 
         !order.produto_nome.includes('Curso') && 
         !order.produto_nome.includes('Oficina')
       );
@@ -167,7 +171,10 @@ export default function DashboardPage() {
   }, [ordersData, campaignsData, setIsLoading, setSalesData, setAdsData, setKpis]);
 
   // Apply filters to data
-  const filteredSalesData = salesData.filter((order: any) => {
+  // Ensure salesData is always an array
+  const safeOrdersData = Array.isArray(salesData) ? salesData : [];
+  
+  const filteredSalesData = safeOrdersData.filter((order: any) => {
     if (filters.dateRange.from && filters.dateRange.to) {
       const orderDate = parseDate(order.pedido_data);
       if (orderDate < filters.dateRange.from || orderDate > filters.dateRange.to) {
@@ -218,7 +225,10 @@ export default function DashboardPage() {
   ];
 
   // Prepare campaign performance data
-  const campaignPerformance = adsData.map((campaign: any) => {
+  // Ensure adsData is always an array
+  const safeAdsData = Array.isArray(adsData) ? adsData : [];
+  
+  const campaignPerformance = safeAdsData.map((campaign: any) => {
     const investment = parseNumberBR(campaign["Valor usado (BRL)"]);
     const revenue = parseNumberBR(campaign["Valor de conversão de adições ao carrinho"]);
     const roi = calculateROI(investment, revenue);
