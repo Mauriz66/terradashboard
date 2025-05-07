@@ -125,7 +125,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
           <div className="flex items-center">
             <img
-              src={theme === "dark" ? "/attached_assets/logo-terrafe-black.png" : "/attached_assets/logo-terrafe.png"}
+              src={theme === "dark" ? "attached_assets/logo-terrafe-black.png" : "attached_assets/logo-terrafe.png"}
               alt="TerraFé"
               className={cn(
                 "h-8 transition-all duration-300",
