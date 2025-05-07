@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -31,7 +29,6 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const { theme } = useTheme();
   const [location] = useLocation();
   const mounted = useMounted();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
@@ -332,7 +329,19 @@ export function MainLayout({ children }: MainLayoutProps) {
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-sidebar-border">
           <div className="flex items-center justify-between">
-            <ThemeToggle />
+            <Button
+              onClick={() => {
+                const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                document.documentElement.classList.toggle('dark');
+              }}
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+            >
+              <Icons.sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Icons.moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Alternar tema</span>
+            </Button>
             {sidebarOpen && (
               <Button variant="ghost" size="sm" className="text-sidebar-foreground text-xs" asChild>
                 <Link href="/upload">Atualizar Dados</Link>
@@ -385,14 +394,19 @@ export function MainLayout({ children }: MainLayoutProps) {
               </TooltipProvider>
 
               {!sidebarOpen && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <ThemeToggle />
-                    </TooltipTrigger>
-                    <TooltipContent>Alternar tema</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  onClick={() => {
+                    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                    document.documentElement.classList.toggle('dark');
+                  }}
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                >
+                  <Icons.sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Icons.moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span className="sr-only">Alternar tema</span>
+                </Button>
               )}
             </div>
           </div>
