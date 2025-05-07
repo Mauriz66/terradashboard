@@ -108,6 +108,73 @@
       .btn:hover {
         background-color: #115329;
       }
+
+      /* Estilos para o dashboard integrado */
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      
+      .card {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #166534;
+      }
+      
+      .card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+      
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(22, 101, 52, 0.2);
+        border-top-color: #166534;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+      
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .dashboard-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+      }
+
+      .dashboard-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #166534;
+      }
     `]));
     
     // Verificar a API
@@ -129,7 +196,7 @@
           <p>Total de pedidos carregados: ${data.length}</p>
           <p>Por favor, acesse a aplicação completa em:</p>
           <p>
-            <a href="/dashboard" class="btn">Acessar Dashboard Completo</a>
+            <button class="btn" id="view-dashboard-btn">Visualizar Dashboard</button>
           </p>
           <p style="margin-top: 15px">
             <small>Ou visite o <a href="https://github.com/Mauriz66/terradashboard" target="_blank">GitHub do Projeto</a></small>
@@ -137,12 +204,11 @@
         `;
         messageEl.classList.add('success-message');
         
-        // Adicionar botão para carregar dashboard diretamente
-        const dashboardBtn = messageEl.querySelector('.btn');
-        dashboardBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          loadFullDashboard();
-        });
+        // Adicionar evento para exibir o dashboard
+        const dashboardBtn = document.getElementById('view-dashboard-btn');
+        if (dashboardBtn) {
+          dashboardBtn.addEventListener('click', loadFullDashboard);
+        }
       } else {
         throw new Error('Erro ao carregar dados');
       }
@@ -165,25 +231,120 @@
     }
   }
 
-  // Função para carregar o dashboard completo
-  function loadFullDashboard() {
-    const root = document.getElementById('root');
-    root.innerHTML = '';
+  // Função para carregar o dashboard completo diretamente na página atual
+  async function loadFullDashboard() {
+    const main = document.querySelector('.dashboard-content');
+    if (!main) return;
     
-    // Criar elemento de carregamento
-    const loadingEl = createElement('div', { class: 'loading-container' }, [
-      createElement('h1', { class: 'loading-title' }, ['TerraFé Dashboard']),
-      createElement('div', { class: 'loading-spinner' }, []),
-      createElement('p', {}, ['Carregando dashboard completo...'])
-    ]);
+    // Limpar o conteúdo atual
+    main.innerHTML = `
+      <div class="dashboard-container">
+        <div class="dashboard-title">Dashboard TerraFé</div>
+        <div id="dashboard-loading" style="text-align: center; padding: 2rem;">
+          <div class="spinner"></div>
+          <p>Carregando dados do dashboard...</p>
+        </div>
+      </div>
+    `;
     
-    root.appendChild(loadingEl);
-    
-    // Simular carregamento do app completo (em produção, carregaria os scripts/css do app real)
-    setTimeout(() => {
-      // Redirecionar para o endpoint que carregaria o app real se estivesse disponível
-      window.location.href = '/api/dashboard';
-    }, 1500);
+    try {
+      // Carregar dados de pedidos
+      const ordersResponse = await fetch('/api/orders');
+      const orders = await ordersResponse.json();
+      
+      // Carregar dados de campanhas
+      const campaignsResponse = await fetch('/api/campaigns');
+      const campaigns = await campaignsResponse.json();
+      
+      // Calcular KPIs
+      const totalOrders = orders.length;
+      const totalSales = orders.reduce((sum, order) => 
+        sum + parseFloat(order.produto_valor_total.replace(',', '.')), 0);
+      
+      const totalAds = campaigns.reduce((sum, campaign) => 
+        sum + parseFloat(campaign['Valor usado (BRL)'].replace('.', '').replace(',', '.')), 0);
+      
+      const totalConversions = campaigns.reduce((sum, campaign) => 
+        sum + parseFloat(campaign['Valor de conversão de adições ao carrinho'].replace('.', '').replace(',', '.')), 0);
+      
+      const roi = (totalConversions - totalAds) / totalAds;
+      
+      // Formatar valores
+      const formatCurrency = (value) => 
+        new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+      
+      const formatPercent = (value) => 
+        new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 2 }).format(value);
+      
+      // Renderizar dashboard
+      const dashboardContainer = document.querySelector('.dashboard-container');
+      dashboardContainer.innerHTML = `
+        <div class="dashboard-title">Dashboard TerraFé</div>
+        <div class="card-container">
+          <div class="card">
+            <div class="card-title">Total de Pedidos</div>
+            <div class="card-value">${totalOrders}</div>
+            <p>Pedidos processados</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-title">Total de Vendas</div>
+            <div class="card-value">${formatCurrency(totalSales)}</div>
+            <p>Receita gerada</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-title">Investimento em Ads</div>
+            <div class="card-value">${formatCurrency(totalAds)}</div>
+            <p>Valor investido em campanhas</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-title">ROI</div>
+            <div class="card-value">${formatPercent(roi)}</div>
+            <p>Retorno sobre investimento</p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="btn" id="back-btn">Voltar</button>
+          <a href="https://github.com/Mauriz66/terradashboard" target="_blank" style="margin-left: 1rem;">
+            <button class="btn">Acessar GitHub</button>
+          </a>
+        </div>
+      `;
+      
+      // Adicionar evento para voltar
+      const backBtn = document.getElementById('back-btn');
+      if (backBtn) {
+        backBtn.addEventListener('click', renderDashboard);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do dashboard:', error);
+      const dashboardContainer = document.querySelector('.dashboard-container');
+      if (dashboardContainer) {
+        dashboardContainer.innerHTML = `
+          <div class="dashboard-title">Dashboard TerraFé</div>
+          <div style="text-align: center; padding: 2rem;" class="error-message">
+            <h2>Erro ao carregar dados</h2>
+            <p>Não foi possível conectar com a API. Tente novamente mais tarde.</p>
+            <button class="btn" id="retry-dashboard-btn">Tentar Novamente</button>
+            <button class="btn" id="back-btn" style="margin-left: 1rem;">Voltar</button>
+          </div>
+        `;
+        
+        // Adicionar eventos aos botões
+        const retryBtn = document.getElementById('retry-dashboard-btn');
+        if (retryBtn) {
+          retryBtn.addEventListener('click', loadFullDashboard);
+        }
+        
+        const backBtn = document.getElementById('back-btn');
+        if (backBtn) {
+          backBtn.addEventListener('click', renderDashboard);
+        }
+      }
+    }
   }
 
   // Iniciar o aplicativo quando a página estiver carregada
