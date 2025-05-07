@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useTheme } from "@/components/theme-provider";
-import { cn, getLogoPath } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -49,14 +49,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     const handleClickOutside = (e: MouseEvent) => {
       if (!isDesktop && mobileOpen) {
         const sidebar = document.getElementById("sidebar");
-        const mobileToggle = document.getElementById("mobile-sidebar-toggle");
-        
-        if (
-          sidebar &&
-          !sidebar.contains(e.target as Node) &&
-          mobileToggle &&
-          !mobileToggle.contains(e.target as Node)
-        ) {
+        if (sidebar && !sidebar.contains(e.target as Node)) {
           setMobileOpen(false);
         }
       }
@@ -122,31 +115,30 @@ export function MainLayout({ children }: MainLayoutProps) {
       <aside
         id="sidebar"
         className={cn(
-          "flex flex-col bg-sidebar border-r border-sidebar-border h-screen z-30 overflow-hidden transition-all duration-300 ease-in-out",
-          !isDesktop && "fixed inset-y-0 left-0",
+          "fixed inset-y-0 left-0 z-20 bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300 ease-in-out lg:relative",
+          sidebarOpen ? "w-64" : "w-16",
           !isDesktop && !mobileOpen && "-translate-x-full",
-          sidebarOpen ? "w-64" : "w-20"
+          !isDesktop && mobileOpen && "translate-x-0 shadow-xl"
         )}
       >
         {/* Sidebar Header */}
-        <div className="p-4 flex justify-between items-center border-b border-sidebar-border">
-          <div className="flex items-center overflow-hidden">
+        <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
+          <div className="flex items-center">
             <img
-              src={getLogoPath(theme === "dark")}
-              alt="TerraFé Logo"
-              className="h-8 mr-2"
+              src={theme === "dark" ? "/attached_assets/logo-terrafe-black.png" : "/attached_assets/logo-terrafe.png"}
+              alt="TerraFé"
+              className={cn(
+                "h-8 transition-all duration-300",
+                sidebarOpen ? "mr-2" : "mr-0"
+              )}
             />
-            {sidebarOpen && (
-              <span className="text-lg font-semibold text-sidebar-foreground">
-                TerraFé
-              </span>
-            )}
+            {sidebarOpen && <span className="text-xl font-semibold">TerraFé</span>}
           </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className="hidden lg:flex"
           >
             {sidebarOpen ? (
               <Icons.sidebarClose className="h-5 w-5" />
@@ -154,48 +146,25 @@ export function MainLayout({ children }: MainLayoutProps) {
               <Icons.sidebarOpen className="h-5 w-5" />
             )}
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileOpen(false)}
+            className="lg:hidden"
+          >
+            <Icons.close className="h-5 w-5" />
+          </Button>
         </div>
 
-        {/* User Profile */}
-        <div className="p-4 border-b border-sidebar-border">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-8 h-8 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground">
-              <Icons.user className="h-4 w-4" />
-            </div>
-            {sidebarOpen && (
-              <div className="overflow-hidden">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  Administrador
-                </p>
-                <p className="text-xs text-sidebar-foreground/60 truncate">
-                  admin@terrafe.com
-                </p>
-              </div>
-            )}
-          </div>
-
-          {sidebarOpen && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-sidebar-foreground/60">Tema</span>
-              <ThemeToggle />
-            </div>
-          )}
-        </div>
-
-        {/* Navigation */}
+        {/* Sidebar Content */}
         <ScrollArea className="flex-1">
-          <nav className="px-2 py-4 space-y-1">
-            {sidebarOpen && (
-              <span className="px-3 text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">
-                Navegação
-              </span>
-            )}
-
+          {/* Navigation */}
+          <nav className="px-2 py-4">
             {navItems.map((item) => (
-              <TooltipProvider key={item.href} delayDuration={0}>
+              <TooltipProvider key={item.href}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div>
+                    <div className="mb-1">
                       <Link href={item.href}>
                         <button
                           className={cn(
@@ -258,34 +227,39 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <label className="block text-sm font-medium text-sidebar-foreground mb-1">
                   Categoria
                 </label>
-                <Select
+                <Select 
                   value={filters.category}
-                  onValueChange={(value) =>
-                    updateFilters({ ...filters, category: value })
+                  onValueChange={(value) => 
+                    updateFilters({
+                      ...filters,
+                      category: value
+                    })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma categoria" />
+                    <SelectValue placeholder="Todas as categorias" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="ecommerce">E-commerce</SelectItem>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
                     <SelectItem value="instituto">Instituto</SelectItem>
+                    <SelectItem value="ecommerce">E-commerce</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Product Search */}
+              {/* Product Filter */}
               <div className="mt-3">
                 <label className="block text-sm font-medium text-sidebar-foreground mb-1">
                   Produto
                 </label>
                 <Input
-                  type="text"
-                  placeholder="Buscar produto"
+                  placeholder="Filtrar por produto"
                   value={filters.product}
-                  onChange={(e) =>
-                    updateFilters({ ...filters, product: e.target.value })
+                  onChange={(e) => 
+                    updateFilters({
+                      ...filters,
+                      product: e.target.value
+                    })
                   }
                 />
               </div>
@@ -295,25 +269,25 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <label className="block text-sm font-medium text-sidebar-foreground mb-1">
                   Estado
                 </label>
-                <Select
+                <Select 
                   value={filters.state}
-                  onValueChange={(value) =>
-                    updateFilters({ ...filters, state: value })
+                  onValueChange={(value) => 
+                    updateFilters({
+                      ...filters,
+                      state: value
+                    })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione um estado" />
+                    <SelectValue placeholder="Todos os estados" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="all">Todos os estados</SelectItem>
                     <SelectItem value="SP">São Paulo</SelectItem>
-                    <SelectItem value="ES">Espírito Santo</SelectItem>
                     <SelectItem value="RJ">Rio de Janeiro</SelectItem>
                     <SelectItem value="MG">Minas Gerais</SelectItem>
-                    <SelectItem value="SC">Santa Catarina</SelectItem>
                     <SelectItem value="RS">Rio Grande do Sul</SelectItem>
-                    <SelectItem value="GO">Goiás</SelectItem>
-                    <SelectItem value="DF">Distrito Federal</SelectItem>
+                    <SelectItem value="PR">Paraná</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -323,63 +297,63 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <label className="block text-sm font-medium text-sidebar-foreground mb-1">
                   Status do Pedido
                 </label>
-                <Select
+                <Select 
                   value={filters.orderStatus}
-                  onValueChange={(value) =>
-                    updateFilters({ ...filters, orderStatus: value })
+                  onValueChange={(value) => 
+                    updateFilters({
+                      ...filters,
+                      orderStatus: value
+                    })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione um status" />
+                    <SelectValue placeholder="Todos os status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="Pedido Entregue">Pedido Entregue</SelectItem>
-                    <SelectItem value="Pedido Pago">Pedido Pago</SelectItem>
-                    <SelectItem value="Pedido Enviado">Pedido Enviado</SelectItem>
-                    <SelectItem value="Pedido em separação">Pedido em separação</SelectItem>
-                    <SelectItem value="Pedido pronto para retirada">Pedido pronto para retirada</SelectItem>
+                    <SelectItem value="all">Todos os status</SelectItem>
+                    <SelectItem value="Finalizado">Finalizado</SelectItem>
+                    <SelectItem value="Em andamento">Em andamento</SelectItem>
+                    <SelectItem value="Cancelado">Cancelado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Apply Filters Button */}
-              <Button
-                className="mt-4 w-full"
-                onClick={() => updateFilters(filters)}
-              >
-                <Icons.filter className="mr-2 h-4 w-4" />
-                Aplicar Filtros
-              </Button>
             </div>
           )}
         </ScrollArea>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-sidebar-border">
+          <div className="flex items-center justify-between">
+            <ThemeToggle />
+            {sidebarOpen && (
+              <Button variant="ghost" size="sm" className="text-sidebar-foreground text-xs" asChild>
+                <Link href="/upload">Atualizar Dados</Link>
+              </Button>
+            )}
+          </div>
+        </div>
       </aside>
 
-      {/* Mobile Sidebar Toggle */}
-      {!isDesktop && (
-        <Button
-          id="mobile-sidebar-toggle"
-          variant="default"
-          size="sm"
-          className="fixed top-4 left-4 z-50 shadow-md flex items-center"
-          onClick={toggleMobileSidebar}
-        >
-          <Icons.sidebarOpen className="h-4 w-4 mr-1" />
-          Menu
-        </Button>
-      )}
-
-      {/* Main Content */}
+      {/* Main Content Container */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-background border-b z-10 py-3 px-4 sm:px-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold">{getPageTitle()}</h1>
-              <p className="text-sm text-muted-foreground">Abril de 2025</p>
-            </div>
-            <div className="flex items-center space-x-2">
+        <header className="h-16 border-b border-border bg-background flex items-center justify-between px-4">
+          <div className="flex items-center">
+            {!isDesktop && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleMobileSidebar}
+                className="mr-2"
+              >
+                <Icons.sidebarOpen className="h-5 w-5" />
+              </Button>
+            )}
+            <h1 className="text-xl font-semibold">{getPageTitle()}</h1>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <div className="hidden sm:flex space-x-2">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -417,9 +391,29 @@ export function MainLayout({ children }: MainLayoutProps) {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-background">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-background pb-16 md:pb-6">
           {children}
         </main>
+        
+        {/* Mobile Bottom Navigation */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border h-14 flex items-center justify-around px-2 z-50">
+          {navItems.map((item) => (
+            <Link href={item.href} key={item.title}>
+              <div 
+                className={cn(
+                  "flex flex-col items-center justify-center", 
+                  "p-2 rounded-md transition-colors",
+                  location === item.href
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {item.icon}
+                <span className="text-[10px] mt-1">{item.title}</span>
+              </div>
+            </Link>
+          ))}
+        </nav>
       </div>
     </div>
   );
