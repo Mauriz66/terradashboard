@@ -4,6 +4,7 @@ import {
   BarChart3,
   BookOpenText,
   Calendar,
+  Clock,
   Coffee,
   Download,
   Filter,
@@ -58,4 +59,5 @@ export const Icons = {
   money: DollarSign,
   arrowUp: ArrowUp,
   arrowDown: ArrowDown,
+  clock: Clock,
 };

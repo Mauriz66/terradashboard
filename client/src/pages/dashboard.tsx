@@ -37,7 +37,7 @@ import {
   calculatePercentage
 } from "@/lib/utils";
 
-const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))"];
+const COLORS = ["hsl(215, 90%, 50%)", "hsl(160, 70%, 45%)", "hsl(25, 90%, 55%)", "hsl(275, 80%, 60%)"];
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
@@ -379,31 +379,36 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Conversion Rate Card */}
+        {/* Best Selling Time Card */}
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Taxa de Conversão</h3>
-              <span className="flex items-center text-green-500 text-xs">
-                <Icons.arrowUp className="mr-1 h-3 w-3" />
-                2.1%
+              <h3 className="text-sm font-medium text-muted-foreground">Melhor Momento de Vendas</h3>
+              <span className="flex items-center text-blue-500 text-xs">
+                <Icons.clock className="mr-1 h-3 w-3" />
+                Análise
               </span>
             </div>
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
             ) : (
-              <p className="text-2xl font-bold">{formatPercentage(kpis.conversionRate)}</p>
+              <p className="text-2xl font-bold">
+                {bestDay ? bestDay.name : "N/A"}
+                <span className="text-lg ml-2 font-medium text-muted-foreground">
+                  {bestHour ? `${bestHour.hour}h` : ""}
+                </span>
+              </p>
             )}
             <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
               <span>Abril 2025</span>
               <div className="flex items-center">
-                <Icons.ecommerce className="mr-1 h-3 w-3" />
-                <span>56 adições ao carrinho</span>
+                <Icons.calendar className="mr-1 h-3 w-3" />
+                <span>{kpis.totalOrders} pedidos analisados</span>
               </div>
             </div>
-            {!isLoading && bestDay && bestHour && (
+            {!isLoading && (
               <div className="mt-2 text-xs text-muted-foreground">
-                <span>Melhor momento para vendas: <b>{bestDay.name}</b> às <b>{bestHour.hour}h</b></span>
+                <span>Programe campanhas para {bestDay ? bestDay.name : "os dias"} para maximizar vendas</span>
               </div>
             )}
           </CardContent>
@@ -466,9 +471,9 @@ export default function DashboardPage() {
                     type="monotone"
                     dataKey="sales"
                     name="Vendas (R$)"
-                    stroke="hsl(var(--primary))"
+                    stroke={COLORS[0]}
                     strokeWidth={2}
-                    dot={{ r: 4, fill: "hsl(var(--primary))" }}
+                    dot={{ r: 4, fill: COLORS[0] }}
                     activeDot={{ r: 6 }}
                   />
                 </LineChart>
@@ -576,7 +581,7 @@ export default function DashboardPage() {
                     <Bar 
                       dataKey="roi" 
                       name="ROI" 
-                      fill="hsl(var(--primary))" 
+                      fill={COLORS[1]} 
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
