@@ -1,15 +1,31 @@
 {
   "version": 2,
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist",
-  "framework": null,
-  "functions": {
-    "api/**/*": {
-      "memory": 1024
+  "builds": [
+    {
+      "src": "client/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
-  },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/" }
+  ],
+  "routes": [
+    {
+      "src": "/api/orders",
+      "dest": "/api/orders.js"
+    },
+    {
+      "src": "/api/campaigns",
+      "dest": "/api/campaigns.js"
+    },
+    {
+      "src": "/api/upload",
+      "dest": "/api/upload.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/$1"
+    }
   ]
 } 
