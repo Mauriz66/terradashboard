@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <title>TerraFé Dashboard</title>
+    <meta name="description" content="Dashboard de análise de vendas e campanhas de marketing da TerraFé, visualize métricas-chave de desempenho e tome decisões baseadas em dados." />
+    <meta property="og:title" content="TerraFé Dashboard" />
+    <meta property="og:description" content="Dashboard interativa para análise de vendas e campanhas de marketing da TerraFé." />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html, body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+        line-height: 1.6;
+      }
+      
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 100%;
+      }
+      
+      .loading-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #166534;
+      }
+      
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(22, 101, 52, 0.2);
+        border-top-color: #166534;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="loading-container">
+        <h1 class="loading-title">TerraFé Dashboard</h1>
+        <div class="loading-spinner"></div>
+        <p>Carregando dados...</p>
+      </div>
+    </div>
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        // Se o aplicativo não carregar em 5 segundos, exibir uma mensagem
+        setTimeout(function() {
+          const loadingEl = document.querySelector('.loading-container p');
+          if (loadingEl) {
+            loadingEl.textContent = 'Carregando dados... Isso pode levar alguns instantes na primeira vez.';
+          }
+        }, 5000);
+      });
+    </script>
+    <script type="module" src="/assets/main.js"></script>
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>

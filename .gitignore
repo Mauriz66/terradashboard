@@ -6,6 +6,7 @@ node_modules
 # Produção
 dist
 build
+!client/dist
 server/public
 
 # Arquivos de ambiente
