@@ -4,44 +4,60 @@ import App from "./App";
 import "./index.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
-// Logging para diagnóstico
-console.log("Inicializando aplicação TerraFé Dashboard...");
-
-// Função para renderização segura
-const renderApp = () => {
-  const rootElement = document.getElementById("root");
-  
-  if (!rootElement) {
-    console.error("Elemento root não encontrado!");
-    return;
-  }
-  
+// Tratamento de erros global
+const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
   try {
-    console.log("Renderizando aplicação...");
-    
-    createRoot(rootElement).render(
-      <StrictMode>
-        <ThemeProvider defaultTheme="light" storageKey="terrafe-theme">
-          <App />
-        </ThemeProvider>
-      </StrictMode>
-    );
-    
-    console.log("Renderização concluída com sucesso!");
+    return <>{children}</>;
   } catch (error) {
-    console.error("Erro durante renderização:", error);
-    
-    // Mostrar mensagem de erro visual
-    rootElement.innerHTML = `
-      <div style="padding: 20px; margin: 20px; border: 1px solid red; border-radius: 5px; background-color: #ffeeee; color: red; font-family: monospace;">
-        <h2>Erro durante renderização:</h2>
-        <pre>${error instanceof Error ? error.message : 'Erro desconhecido'}</pre>
-        <h3>Stack:</h3>
-        <pre>${error instanceof Error ? error.stack : ''}</pre>
+    console.error("🔴 Erro na renderização:", error);
+    return (
+      <div style={{ 
+        padding: '20px', 
+        margin: '20px', 
+        border: '1px solid red',
+        borderRadius: '8px',
+        backgroundColor: '#fff1f0',
+        color: '#cf1322'
+      }}>
+        <h2>Ocorreu um erro na aplicação</h2>
+        <p>Por favor, verifique o console para mais detalhes.</p>
+        <pre style={{ 
+          backgroundColor: '#fff', 
+          padding: '10px', 
+          borderRadius: '4px',
+          overflow: 'auto',
+          maxHeight: '300px'
+        }}>
+          {error instanceof Error ? error.stack : String(error)}
+        </pre>
       </div>
-    `;
+    );
   }
 };
 
-// Executar renderização
-renderApp();
+// Registrar manipuladores de erro globais
+window.addEventListener('error', (event) => {
+  console.error('🔴 Erro global capturado:', event.error);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('🔴 Promise rejeitada não tratada:', event.reason);
+});
+
+// Registra informações do ambiente
+console.log('🔧 Ambiente:', process.env.NODE_ENV);
+console.log('📁 Raiz do documento:', document.location.href);
+
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error('❌ Elemento root não encontrado!');
+} else {
+  const root = createRoot(rootElement);
+  root.render(
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="light" storageKey="terrafe-theme">
+        <App />
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+}

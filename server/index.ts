@@ -36,14 +36,8 @@ app.use((req, res, next) => {
   next();
 });
 
-let server: any;
-
-// Para o Vercel, exportamos o app
-export default app;
-
-// Função para iniciar o servidor
-export async function startServer() {
-  server = await registerRoutes(app);
+(async () => {
+  const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -53,29 +47,28 @@ export async function startServer() {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  const isDevelopment = process.env.NODE_ENV === "development";
+  if (isDevelopment) {
+    log("🛠️ Ambiente de desenvolvimento - Configurando Vite HMR");
     await setupVite(app, server);
   } else {
+    log("🚀 Ambiente de produção - Servindo arquivos estáticos");
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  const port = process.env.PORT || process.env.VERCEL ? 3000 : 5000;
+  
   server.listen({
-    port,
+    port: Number(port),
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`🌐 Servidor rodando na porta ${port}`);
+    log(`📁 Diretório atual: ${process.cwd()}`);
+    log(`🔧 Ambiente: ${process.env.NODE_ENV || 'não definido'}`);
+    
+    if (process.env.VERCEL) {
+      log('🔄 Executando no ambiente Vercel');
+    }
   });
-}
-
-// Iniciar o servidor se não estiver em ambiente de produção ou Vercel
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  startServer();
-}
+})();

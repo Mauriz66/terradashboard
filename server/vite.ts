@@ -20,7 +20,7 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
-  const serverOptions = {
+  const serverOptions: any = {
     middlewareMode: true,
     hmr: { server },
     allowedHosts: true,
@@ -68,17 +68,46 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  // No Vercel, os arquivos estáticos são servidos a partir do diretório dist/public
+  const distPath = path.resolve(process.cwd(), "dist/public");
 
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    log(`⚠️ Aviso: O diretório de build ${distPath} não foi encontrado.`, "static");
+    
+    // Verificar se estamos no Vercel
+    if (process.env.VERCEL) {
+      log(`🔍 Ambiente Vercel detectado, tentando alternativas...`, "static");
+      
+      // Tentar encontrar o diretório correto
+      const possiblePaths = [
+        path.resolve(process.cwd(), "public"),
+        path.resolve(import.meta.dirname, "public"),
+        path.resolve(import.meta.dirname, "..", "public")
+      ];
+      
+      for (const tryPath of possiblePaths) {
+        if (fs.existsSync(tryPath)) {
+          log(`✅ Encontrado diretório alternativo: ${tryPath}`, "static");
+          app.use(express.static(tryPath));
+          
+          // Rota fallback para o SPA
+          app.use("*", (_req, res) => {
+            res.sendFile(path.resolve(tryPath, "index.html"));
+          });
+          
+          return;
+        }
+      }
+      
+      log(`❌ Nenhum diretório alternativo encontrado`, "static");
+    }
+  } else {
+    log(`✅ Servindo arquivos estáticos de: ${distPath}`, "static");
   }
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
+  // Rota fallback para o SPA
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
