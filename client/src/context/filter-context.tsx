@@ -16,7 +16,9 @@ const defaultFilters: FilterState = {
   category: 'all',
   product: '',
   state: 'all',
-  orderStatus: 'all'
+  orderStatus: 'all',
+  campaign: 'all',
+  source: 'all'
 };
 
 const FilterContext = createContext<FilterContextType>({

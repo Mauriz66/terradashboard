@@ -44,6 +44,11 @@ import {
   Trophy,
   GraduationCap,
   Download,
+  Bell,
+  Menu,
+  ChevronDown,
+  ChevronUp,
+  Upload,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -72,7 +77,11 @@ export const Icons = {
   image: Image,
   
   // Dashboard icons
+  dashboard: BarChart,
+  institute: GraduationCap,
   ecommerce: ShoppingBag,
+  tables: FileText,
+  upload: Upload,
   chart: LineChart,
   barChart: BarChart,
   pieChart: PieChart,
@@ -97,4 +106,8 @@ export const Icons = {
   trophy: Trophy,
   graduationCap: GraduationCap,
   download: Download,
+  notifications: Bell,
+  menu: Menu,
+  sidebarOpen: ChevronRight,
+  sidebarClose: ChevronLeft,
 };

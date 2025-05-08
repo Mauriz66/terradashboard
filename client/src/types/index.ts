@@ -41,6 +41,8 @@ export interface FilterState {
   product: string;
   state: string;
   orderStatus: string;
+  campaign: string;
+  source: string;
 }
 
 // Dashboard Context Types
