@@ -52,6 +52,21 @@ const Ecommerce = () => (
   </div>
 );
 
+// Página inicial simplificada
+const HomePage = () => (
+  <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-6 text-center">
+    <h1 className="text-4xl font-bold tracking-tight">Bem-vindo ao TerraFé Dashboard</h1>
+    <p className="text-xl text-muted-foreground max-w-2xl">
+      Explore dados de vendas, métricas de marketing e insights do seu negócio em um único lugar.
+    </p>
+    <div className="flex flex-wrap gap-4 justify-center">
+      <a href="/dashboard" className="inline-flex items-center justify-center rounded-md bg-primary text-white px-4 py-2 text-sm font-medium shadow hover:bg-primary/90">
+        Acessar Dashboard
+      </a>
+    </div>
+  </div>
+);
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -60,7 +75,8 @@ function App() {
           <DashboardProvider>
             <MainLayout>
               <Switch>
-                <Route path="/" component={Dashboard} />
+                <Route path="/" component={HomePage} />
+                <Route path="/dashboard" component={Dashboard} />
                 <Route path="/instituto" component={Instituto} />
                 <Route path="/ecommerce" component={Ecommerce} />
                 <Route component={NotFound} />

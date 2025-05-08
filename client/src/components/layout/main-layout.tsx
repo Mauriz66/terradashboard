@@ -7,7 +7,8 @@ interface MainLayoutProps {
 }
 
 const NAV_ITEMS = [
-  { name: "Dashboard", path: "/" },
+  { name: "Home", path: "/" },
+  { name: "Dashboard", path: "/dashboard" },
   { name: "Instituto", path: "/instituto" },
   { name: "E-commerce", path: "/ecommerce" },
 ];

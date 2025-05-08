@@ -21,7 +21,7 @@ fi
 
 # Construir o cliente (frontend)
 echo "🏗️ Construindo o cliente (frontend)..."
-npx vite build
+cd client && npm run build && cd ..
 
 # Construir o servidor (backend)
 echo "🏗️ Construindo o servidor (backend)..."
@@ -44,9 +44,23 @@ mkdir -p dist/public
 mkdir -p dist/uploads
 mkdir -p dist/assets
 
-# Criar arquivo index.html no diretório raiz dist/
-echo "📄 Criando arquivo index.html no diretório raiz..."
-cat > dist/index.html << EOF
+# Copiar os arquivos gerados pelo Vite
+echo "📋 Copiando a build do frontend..."
+if [ -d "client/dist" ]; then
+  echo "✅ Build do cliente encontrado, copiando..."
+  cp -r client/dist/* dist/ 2>/dev/null || :
+else
+  echo "⚠️ Build do cliente não encontrado"
+fi
+
+# Verificar se temos um index.html válido
+echo "🔍 Verificando index.html..."
+if [ ! -f "dist/index.html" ] || [ ! -s "dist/index.html" ]; then
+  echo "⚠️ index.html não encontrado ou vazio, criando uma página de fallback..."
+  
+  # Criar arquivo index.html no diretório raiz dist/
+  echo "📄 Criando arquivo index.html de fallback no diretório raiz..."
+  cat > dist/index.html << EOF
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -240,11 +254,11 @@ cat > dist/index.html << EOF
 </html>
 EOF
 
-# Criar arquivo de script em dist/assets
-echo "📝 Criando arquivo assets/index.js..."
-mkdir -p dist/assets
+  # Criar arquivo de script em dist/assets
+  echo "📝 Criando arquivo assets/index.js..."
+  mkdir -p dist/assets
 
-cat > dist/assets/index.js << EOF
+  cat > dist/assets/index.js << EOF
 // Sinalizar que o script foi inicializado
 window.appInitialized = true;
 
@@ -286,15 +300,15 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('API Health Check:', data);
       
       // Mostrar status da API
-      subtitleElement.textContent = 'API conectada! Versão inicial pronta para uso.';
+      subtitleElement.textContent = 'API conectada! Acesse a dashboard.';
       
       // Criar container para botões
       const buttonsContainer = createButtonContainer();
       
       // Adicionar botões de navegação
       buttonsContainer.appendChild(
-        addButton('Verificar API', '#0ea5e9', () => {
-          window.location.href = '/api/health';
+        addButton('Acessar Dashboard', '#2563eb', () => {
+          window.location.href = '/dashboard';
         })
       );
       
@@ -309,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
       statusInfo.className = 'status-info';
       statusInfo.innerHTML = \`
         <p>Status: <span class="success">Online</span></p>
-        <p>Versão: <span class="info">Prévia</span></p>
+        <p>Versão: <span class="info">1.0.0</span></p>
         <p>Timestamp: <span class="info">\${new Date().toLocaleString()}</span></p>
       \`;
       loadingContainer.appendChild(statusInfo);
@@ -342,6 +356,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 EOF
+else
+  echo "✅ index.html encontrado, usando o arquivo existente."
+fi
 
 # MELHORADO: Copiar arquivos estáticos diretamente para o diretório raiz dist/
 echo "📋 Copiando arquivos estáticos para o diretório raiz dist/..."
