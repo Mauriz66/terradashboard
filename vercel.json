@@ -3,23 +3,12 @@
   "buildCommand": "./vercel-build.sh",
   "outputDirectory": "dist",
   "framework": null,
-  "functions": {
-    "dist/index.js": {
-      "includeFiles": "dist/**"
-    }
-  },
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/dist/index.js"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/index.js"
-    }
+    { "src": "/api/health", "dest": "/api/health.js" },
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|svg|webp|woff|woff2|ttf|json))", "dest": "/$1" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
     "NODE_ENV": "production"

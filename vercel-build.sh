@@ -27,6 +27,11 @@ npx vite build
 echo "🏗️ Construindo o servidor (backend)..."
 npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
+# Criar diretório API para o Vercel
+echo "🏗️ Configurando diretório API para o Vercel..."
+mkdir -p dist/api
+npx esbuild api/index.js --platform=node --packages=external --bundle --format=esm --outdir=dist/api
+
 # Copiar assets necessários
 echo "📋 Copiando assets e arquivos estáticos..."
 mkdir -p dist/shared
@@ -103,6 +108,9 @@ ls -la dist/
 
 echo "📋 Conteúdo do diretório dist/public/ (se existir):"
 ls -la dist/public/ 2>/dev/null || echo "Diretório não encontrado"
+
+echo "📋 Conteúdo do diretório dist/api/ (se existir):"
+ls -la dist/api/ 2>/dev/null || echo "Diretório não encontrado"
 
 # Criar arquivo de registro do deploy
 echo "📝 Criando arquivo de registro do deploy..."

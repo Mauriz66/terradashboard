@@ -4,9 +4,13 @@ import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 import fs from "fs";
 
+// Criar a aplicação Express
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Expor o app para o Vercel
+export { app };
 
 app.use((req, res, next) => {
   res.setHeader('X-Request-Path', req.path);
@@ -41,9 +45,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Rota de diagnóstico para depuração
 app.get("/api/_diagnostics", (req, res) => {
   const currentDir = process.cwd();
-  const dirs = ["dist", "dist/public", "dist/client", "public"];
+  const dirs = ["dist", "dist/public", "dist/client", "public", "dist/api", "api"];
   
   interface DirectoryInfo {
     exists: boolean;
@@ -96,7 +101,13 @@ app.get("/api/_diagnostics", (req, res) => {
   res.json(diagnosticInfo);
 });
 
-(async () => {
+// Verificação de saúde para o Vercel
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Servidor funcionando corretamente" });
+});
+
+// Função para iniciar o servidor
+const startServer = async () => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -116,19 +127,33 @@ app.get("/api/_diagnostics", (req, res) => {
     serveStatic(app);
   }
 
-  const port = process.env.PORT || process.env.VERCEL ? 3000 : 5000;
-  
-  server.listen({
-    port: Number(port),
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`🌐 Servidor rodando na porta ${port}`);
-    log(`📁 Diretório atual: ${process.cwd()}`);
-    log(`🔧 Ambiente: ${process.env.NODE_ENV || 'não definido'}`);
+  // Não iniciar o servidor se estivermos no Vercel (serverless)
+  if (!process.env.VERCEL) {
+    const port = process.env.PORT || 5000;
     
-    if (process.env.VERCEL) {
-      log('🔄 Executando no ambiente Vercel');
-    }
+    server.listen({
+      port: Number(port),
+      host: "0.0.0.0",
+      reusePort: true,
+    }, () => {
+      log(`🌐 Servidor rodando na porta ${port}`);
+      log(`📁 Diretório atual: ${process.cwd()}`);
+      log(`🔧 Ambiente: ${process.env.NODE_ENV || 'não definido'}`);
+    });
+  } else {
+    log('🔄 Executando no ambiente Vercel - modo serverless');
+  }
+};
+
+// Iniciar o servidor (exceto no ambiente Vercel, onde o arquivo api/index.js assume o controle)
+if (!process.env.VERCEL) {
+  startServer();
+} else {
+  // No Vercel, apenas configurar rotas e middleware sem iniciar o servidor HTTP
+  registerRoutes(app).then(() => {
+    log('✅ Rotas Express registradas para o Vercel');
+    serveStatic(app);
+  }).catch(err => {
+    log(`❌ Erro ao registrar rotas: ${err instanceof Error ? err.message : String(err)}`);
   });
-})();
+}
