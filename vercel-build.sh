@@ -37,6 +37,24 @@ echo "🔍 Verificando estrutura de diretórios..."
 mkdir -p dist/public
 mkdir -p dist/uploads
 
+# IMPORTANTE: Copiar arquivos estáticos do cliente para dist/public
+echo "📋 Copiando arquivos construídos do frontend para pasta public..."
+cp -r dist/client/* dist/public/ 2>/dev/null || :
+
+# Verificar se os arquivos estáticos foram copiados
+if [ -f "dist/public/index.html" ]; then
+  echo "✅ Arquivo index.html encontrado em dist/public"
+else
+  echo "❌ ERRO: index.html não foi copiado para dist/public"
+  # Tentar backup - copiar arquivos do diretório atual
+  ls -la dist/
+  ls -la dist/client/ 2>/dev/null || echo "Pasta dist/client não existe"
+  
+  # Tentar solução alternativa
+  echo "🔄 Tentando solução alternativa..."
+  cp -r public/* dist/public/ 2>/dev/null || echo "Falha ao copiar arquivos de public/"
+fi
+
 # Criar arquivo de registro do deploy
 echo "📝 Criando arquivo de registro do deploy..."
 DEPLOY_TIME=$(date)

@@ -15,6 +15,10 @@
       "dest": "dist/index.js"
     },
     {
+      "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|svg|webp|woff|woff2|ttf|json))",
+      "dest": "/dist/public/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "dist/index.js"
     }

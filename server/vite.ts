@@ -68,47 +68,110 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  // No Vercel, os arquivos estáticos são servidos a partir do diretório dist/public
-  const distPath = path.resolve(process.cwd(), "dist/public");
-
-  if (!fs.existsSync(distPath)) {
-    log(`⚠️ Aviso: O diretório de build ${distPath} não foi encontrado.`, "static");
-    
-    // Verificar se estamos no Vercel
-    if (process.env.VERCEL) {
-      log(`🔍 Ambiente Vercel detectado, tentando alternativas...`, "static");
-      
-      // Tentar encontrar o diretório correto
-      const possiblePaths = [
-        path.resolve(process.cwd(), "public"),
-        path.resolve(import.meta.dirname, "public"),
-        path.resolve(import.meta.dirname, "..", "public")
-      ];
-      
-      for (const tryPath of possiblePaths) {
-        if (fs.existsSync(tryPath)) {
-          log(`✅ Encontrado diretório alternativo: ${tryPath}`, "static");
-          app.use(express.static(tryPath));
-          
-          // Rota fallback para o SPA
-          app.use("*", (_req, res) => {
-            res.sendFile(path.resolve(tryPath, "index.html"));
-          });
-          
-          return;
-        }
+  // Lista de possíveis locais para arquivos estáticos
+  const possiblePaths = [
+    path.resolve(process.cwd(), "dist/public"),
+    path.resolve(process.cwd(), "public"),
+    path.resolve(process.cwd(), "dist/client"),
+    path.resolve(import.meta.dirname, "public"),
+    path.resolve(import.meta.dirname, "..", "public"),
+    path.resolve(import.meta.dirname, "..", "dist/public"),
+    path.resolve(import.meta.dirname, "..", "client/dist")
+  ];
+  
+  // Flag para rastrear se encontramos um diretório válido
+  let foundValidDir = false;
+  let staticPath;
+  
+  // Loop através de todos os caminhos possíveis
+  for (const tryPath of possiblePaths) {
+    try {
+      if (fs.existsSync(tryPath) && fs.existsSync(path.join(tryPath, "index.html"))) {
+        log(`✅ Encontrado diretório de arquivos estáticos: ${tryPath}`, "static");
+        staticPath = tryPath;
+        foundValidDir = true;
+        break;
       }
-      
-      log(`❌ Nenhum diretório alternativo encontrado`, "static");
+    } catch (err) {
+      log(`⚠️ Erro ao verificar path ${tryPath}: ${err instanceof Error ? err.message : String(err)}`, "static");
     }
-  } else {
-    log(`✅ Servindo arquivos estáticos de: ${distPath}`, "static");
   }
-
-  app.use(express.static(distPath));
-
-  // Rota fallback para o SPA
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
-  });
+  
+  // Se não encontramos nenhum diretório válido
+  if (!foundValidDir) {
+    log(`❌ ALERTA: Nenhum diretório de arquivos estáticos válido encontrado`, "static");
+    
+    // Falha segura - criar um index.html temporário se estivermos em produção
+    if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+      const emergencyPath = path.resolve(process.cwd(), "dist/public");
+      try {
+        if (!fs.existsSync(emergencyPath)) {
+          fs.mkdirSync(emergencyPath, { recursive: true });
+        }
+        
+        const emergencyHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>TerraFé Dashboard</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+            h1 { color: #2563eb; }
+            pre { background: #f1f5f9; padding: 10px; border-radius: 4px; overflow: auto; }
+          </style>
+        </head>
+        <body>
+          <h1>TerraFé Dashboard</h1>
+          <p>O servidor está funcionando, mas o diretório de arquivos estáticos não foi encontrado.</p>
+          <p>Se você está vendo esta página, contate o suporte com o ID: ${Date.now()}</p>
+          <h2>Debug Info</h2>
+          <pre>
+          Current Directory: ${process.cwd()}
+          NODE_ENV: ${process.env.NODE_ENV || 'undefined'}
+          Vercel: ${process.env.VERCEL ? 'true' : 'false'}
+          Paths Checked: ${possiblePaths.join(', ')}
+          </pre>
+        </body>
+        </html>
+        `;
+        
+        fs.writeFileSync(path.join(emergencyPath, "index.html"), emergencyHTML);
+        log(`⚠️ Criado arquivo index.html de emergência`, "static");
+        staticPath = emergencyPath;
+      } catch (err) {
+        log(`❌ Erro ao criar página de emergência: ${err instanceof Error ? err.message : String(err)}`, "static");
+      }
+    }
+  }
+  
+  if (staticPath) {
+    log(`🌐 Configurando servidor de arquivos estáticos: ${staticPath}`, "static");
+    app.use(express.static(staticPath));
+    
+    // Rota fallback para o SPA
+    app.use("*", (_req, res, next) => {
+      try {
+        res.sendFile(path.resolve(staticPath!, "index.html"));
+      } catch (err) {
+        next(err);
+      }
+    });
+  } else {
+    log(`❌ Falha ao configurar servidor de arquivos estáticos`, "static");
+    
+    // Rota de emergência caso nada mais funcione
+    app.use("*", (_req, res) => {
+      res.status(500).send(`
+        <html>
+          <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="color: #dc2626;">Erro de Configuração</h1>
+            <p>Não foi possível localizar os arquivos estáticos do aplicativo.</p>
+            <p>ID do erro: ${Date.now()}</p>
+          </body>
+        </html>
+      `);
+    });
+  }
 }

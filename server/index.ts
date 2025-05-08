@@ -1,12 +1,17 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import path from "path";
+import fs from "fs";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
+  res.setHeader('X-Request-Path', req.path);
+  res.setHeader('X-Server-Timestamp', new Date().toISOString());
+  
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
@@ -34,6 +39,39 @@ app.use((req, res, next) => {
   });
 
   next();
+});
+
+app.get("/api/_diagnostics", (req, res) => {
+  const currentDir = process.cwd();
+  const dirs = ["dist", "dist/public", "dist/client", "public"];
+  
+  const diagnosticInfo = {
+    environment: {
+      nodeEnv: process.env.NODE_ENV,
+      vercel: process.env.VERCEL ? true : false,
+      port: process.env.PORT || "not set"
+    },
+    paths: {
+      currentDir,
+      directories: {}
+    },
+    headers: req.headers
+  };
+  
+  dirs.forEach(dir => {
+    try {
+      const fullPath = path.join(currentDir, dir);
+      const exists = fs.existsSync(fullPath);
+      diagnosticInfo.paths.directories[dir] = {
+        exists,
+        files: exists ? fs.readdirSync(fullPath).slice(0, 5) : []
+      };
+    } catch (e) {
+      diagnosticInfo.paths.directories[dir] = { error: e.message };
+    }
+  });
+  
+  res.json(diagnosticInfo);
 });
 
 (async () => {
