@@ -13,15 +13,23 @@ fi
 # Instalação das dependências (se necessário)
 echo "📦 Verificando node_modules..."
 if [ ! -d "node_modules" ] || [ ! -d "client/node_modules" ]; then
-  echo "📦 Instalando dependências..."
+  echo "📦 Instalando dependências completas..."
   npm ci
 else
   echo "📦 Usando dependências em cache."
 fi
 
 # Construir o cliente (frontend)
-echo "🏗️ Construindo o cliente (frontend)..."
+echo "🏗️ Construindo o cliente (frontend) React original..."
 cd client && npm run build && cd ..
+
+# Verificar se o build foi bem-sucedido
+if [ ! -d "client/dist" ] || [ ! -f "client/dist/index.html" ]; then
+  echo "❌ Falha na build do cliente React. Verificando erros..."
+  echo "⚠️ Usando página de fallback..."
+else
+  echo "✅ Build React bem-sucedido!"
+fi
 
 # Construir o servidor (backend)
 echo "🏗️ Construindo o servidor (backend)..."
@@ -44,13 +52,16 @@ mkdir -p dist/public
 mkdir -p dist/uploads
 mkdir -p dist/assets
 
-# Copiar os arquivos gerados pelo Vite
-echo "📋 Copiando a build do frontend..."
-if [ -d "client/dist" ]; then
-  echo "✅ Build do cliente encontrado, copiando..."
+# Copiar os arquivos gerados pelo Vite (PRIORIDADE ALTA)
+echo "📋 Copiando a build do frontend React original..."
+if [ -d "client/dist" ] && [ -f "client/dist/index.html" ]; then
+  echo "✅ Build React original encontrado, copiando..."
   cp -r client/dist/* dist/ 2>/dev/null || :
+  # Fazer backup do index.html original para garantir
+  cp dist/index.html dist/index.html.original
+  echo "✅ Arquivos React originais copiados com sucesso!"
 else
-  echo "⚠️ Build do cliente não encontrado"
+  echo "⚠️ Build do React não foi gerado corretamente"
 fi
 
 # Verificar se temos um index.html válido
@@ -300,15 +311,15 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('API Health Check:', data);
       
       // Mostrar status da API
-      subtitleElement.textContent = 'API conectada! Acesse a dashboard.';
+      subtitleElement.textContent = 'API conectada! Seu projeto original está em manutenção.';
       
       // Criar container para botões
       const buttonsContainer = createButtonContainer();
       
       // Adicionar botões de navegação
       buttonsContainer.appendChild(
-        addButton('Acessar Dashboard', '#2563eb', () => {
-          window.location.href = '/dashboard';
+        addButton('Ver GitHub do Projeto', '#2563eb', () => {
+          window.open('https://github.com/Mauriz66/terradashboard', '_blank');
         })
       );
       
@@ -323,7 +334,8 @@ document.addEventListener('DOMContentLoaded', function() {
       statusInfo.className = 'status-info';
       statusInfo.innerHTML = \`
         <p>Status: <span class="success">Online</span></p>
-        <p>Versão: <span class="info">1.0.0</span></p>
+        <p>API: <span class="success">Funcionando</span></p>
+        <p>Frontend: <span class="warning">Em manutenção</span></p>
         <p>Timestamp: <span class="info">\${new Date().toLocaleString()}</span></p>
       \`;
       loadingContainer.appendChild(statusInfo);
@@ -357,7 +369,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 EOF
 else
-  echo "✅ index.html encontrado, usando o arquivo existente."
+  echo "✅ index.html original encontrado, usando o arquivo existente."
+fi
+
+# MELHORADO: Verificar se existe o original e restaurá-lo (poderia ter sido substituído)
+if [ -f "dist/index.html.original" ]; then
+  echo "🔄 Restaurando index.html original..."
+  cp dist/index.html.original dist/index.html
 fi
 
 # MELHORADO: Copiar arquivos estáticos diretamente para o diretório raiz dist/
