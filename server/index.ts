@@ -45,7 +45,26 @@ app.get("/api/_diagnostics", (req, res) => {
   const currentDir = process.cwd();
   const dirs = ["dist", "dist/public", "dist/client", "public"];
   
-  const diagnosticInfo = {
+  interface DirectoryInfo {
+    exists: boolean;
+    files?: string[];
+    error?: string;
+  }
+  
+  interface DiagnosticInfo {
+    environment: {
+      nodeEnv: string | undefined;
+      vercel: boolean;
+      port: string;
+    };
+    paths: {
+      currentDir: string;
+      directories: Record<string, DirectoryInfo>;
+    };
+    headers: typeof req.headers;
+  }
+  
+  const diagnosticInfo: DiagnosticInfo = {
     environment: {
       nodeEnv: process.env.NODE_ENV,
       vercel: process.env.VERCEL ? true : false,
@@ -66,8 +85,11 @@ app.get("/api/_diagnostics", (req, res) => {
         exists,
         files: exists ? fs.readdirSync(fullPath).slice(0, 5) : []
       };
-    } catch (e) {
-      diagnosticInfo.paths.directories[dir] = { error: e.message };
+    } catch (error: unknown) {
+      diagnosticInfo.paths.directories[dir] = { 
+        exists: false, 
+        error: error instanceof Error ? error.message : String(error) 
+      };
     }
   });
   
